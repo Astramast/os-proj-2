@@ -1,0 +1,72 @@
+#include "utils.h"
+
+#include <unistd.h>
+
+#include "query.h"
+#include "student.h"
+
+size_t safe_read(int fd, void* buffer, size_t nbytes) {
+    ssize_t nbytes_read = read(fd, buffer, nbytes);
+    if (nbytes_read < 0) {
+        perror("read error: ");
+        exit(1);
+    }
+    return (size_t)nbytes_read;
+}
+
+size_t safe_write(int fd, const void* buffer, size_t nbytes) {
+    ssize_t bytes_written = write(fd, buffer, nbytes);
+    if (bytes_written < 0) {
+        perror("write error: ");
+        exit(1);
+    }
+    return (size_t)bytes_written;
+}
+
+int _checked(int ret, char* calling_function) {
+  if (ret < 0) {
+    perror(calling_function);
+    exit(EXIT_FAILURE);
+  }
+  return ret;
+}
+
+bool precise_read(int fd, char* buffer, int size) {
+   int lu, i = 0;
+   while (i < size && (lu = read(fd, buffer, size - i)) > 0) {
+      i += lu;
+   }
+   
+   if (lu < 0) {
+      perror("read()");
+   }
+   
+   return lu > 0;
+}
+
+void log_query(query_result_t* result) {
+    char buffer[512];
+    if (result->status == QUERY_SUCCESS) {
+        char filename[512];
+        char type[256];
+        strcpy(type, result->query);
+        type[6] = '\0';
+        snprintf(filename, 512, "logs/%ld-%s.txt", result->start_ns, type);
+        printf("%s\n", filename);
+        FILE* f = fopen(filename, "w");
+        float duration = (float)(result->end_ns - result->start_ns) / 1.0e6;
+        snprintf(buffer, 512, "Query \"%s\" completed in %fms with %ld results.\n", result->query, duration, result->lsize);
+        fwrite(buffer, sizeof(char), strlen(buffer), f);
+        if (result->lsize > 0) {
+            for (size_t i = 0; i < result->lsize; i++) {
+                student_to_str(buffer, &result->students[i]);
+                fwrite(buffer, sizeof(char), strlen(buffer), f);
+                fwrite("\n", sizeof(char), 1, f);
+            }
+        }
+        fclose(f);
+    } 
+	else if (result->status == UNRECOGNISED_FIELD) {
+        fprintf(stderr, "Unrecognized field in query %s\n", result->query);
+    }
+}
