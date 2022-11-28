@@ -21,10 +21,10 @@ query.o: query.cpp query.h
 db.o: db.cpp db.h
 	${COMPILER} -c db.cpp ${FLAGS}
 
-server.o:server.cpp utils.h
+server.o:server.cpp utils.o
 	${COMPILER} -c server.cpp ${FLAGS}
 
-client.o:client.cpp utils.h
+client.o:client.cpp utils.o
 	${COMPILER} -c client.cpp ${FLAGS}
 
 utils.o: utils.cpp utils.h
@@ -34,4 +34,5 @@ tests: tests/run_tests.py
 	./tests/run_tests.py
 
 clean:
+	-rm *.o
 	rm logs/*

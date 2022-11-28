@@ -1,4 +1,5 @@
 #include <sys/types.h>
+#include "iostream"
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <unistd.h>
@@ -8,10 +9,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <pthread.h>
-#include "utils.h"
 
 int server_creator(){
-
+    // Permet que write() retourne 0 en cas de réception
+    // du signal SIGPIPE.
+    signal(SIGPIPE, SIG_IGN);
     int socket_server= socket(AF_INET, SOCK_STREAM, 0);
 
     int opt = 1;
@@ -25,35 +27,37 @@ int server_creator(){
 
     bind(socket_server, (struct sockaddr *)&address, sizeof(address));
     printf("Bind: %d\n", socket_server);
-    listen(socket_server, 5); 
+    listen(socket_server, 8); 
     printf("Listening\n");
 
+    pthread_t client_id[4];
     char buffer[1024];
-    uint32_t len = 0;
+    int lu;
 
-    struct sockaddr_in client_adrr;
-    size_t addrlen = sizeof(client_adrr);
-    int client_socket = accept(socket_server, (struct sockaddr *)&client_adrr, (socklen_t *)&addrlen);
-    printf("Accept\n");
-
-    printf("Client: %d\n", client_socket);
-
-  
-
-    // Pour le serveur, on se contente de renvoyer
-    // au client tout ce qui est reçu. Comme le
-    // socket est SOCK_STREAM, plusieurs appels à
-    // read() peuvent être nécessaires pour lire
-    // le message en entier.
-    while (precise_read(client_socket, (char*)&len, 4) /* lire la taille du message */
-      && precise_read(client_socket, buffer, ntohl(len))) { /* lire le message */
+    for(int i=0; i<3;i++){
+      pthread_create(&client_id[i],NULL,NULL,NULL);//besoin d une fonction pour test
       
-      write(client_socket, buffer, ntohl(len));
-  }
+      struct sockaddr_in client_adrr;
+      size_t addrlen = sizeof(client_adrr);
+      int client_socket = accept(socket_server, (struct sockaddr *)&client_adrr, (socklen_t *)&addrlen);
 
+      printf("Accepted connexion: %d\n", client_socket);
+
+      while ((lu = read(client_socket, buffer, 1024)) > 0) {
+        write(client_socket, buffer, lu);
+      }
+    }
+
+    for(int i=0; i<3; i++){
+      pthread_join(client_id[i],NULL);
+    }
+    
     close(socket_server);
-    close(client_socket);
     printf("Closing server...\n");
     return 0;
 }
 
+int main(){
+  server_creator();
+  return 1;
+}
