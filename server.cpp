@@ -12,7 +12,7 @@
 
 int server_creator(){
 
-    int socket_server= checked(socket(AF_INET, SOCK_STREAM, 0));
+    int socket_server= socket(AF_INET, SOCK_STREAM, 0);
 
     int opt = 1;
     setsockopt(socket_server, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt));
@@ -23,9 +23,9 @@ int server_creator(){
     address.sin_addr.s_addr = INADDR_ANY;
     address.sin_port = htons(28772);   
 
-    checked(bind(socket_server, (struct sockaddr *)&address, sizeof(address)));
+    bind(socket_server, (struct sockaddr *)&address, sizeof(address));
     printf("Bind: %d\n", socket_server);
-    checked(listen(socket_server, 5)); 
+    listen(socket_server, 5); 
     printf("Listening\n");
 
     char buffer[1024];
@@ -33,7 +33,7 @@ int server_creator(){
 
     struct sockaddr_in client_adrr;
     size_t addrlen = sizeof(client_adrr);
-    int client_socket = checked(accept(socket_server, (struct sockaddr *)&client_adrr, (socklen_t *)&addrlen));
+    int client_socket = accept(socket_server, (struct sockaddr *)&client_adrr, (socklen_t *)&addrlen);
     printf("Accept\n");
 
     printf("Client: %d\n", client_socket);
@@ -48,7 +48,7 @@ int server_creator(){
     while (precise_read(client_socket, (char*)&len, 4) /* lire la taille du message */
       && precise_read(client_socket, buffer, ntohl(len))) { /* lire le message */
       
-      checked_wr(write(client_socket, buffer, ntohl(len)));
+      write(client_socket, buffer, ntohl(len));
   }
 
     close(socket_server);

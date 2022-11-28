@@ -10,7 +10,7 @@
 #include "utils.h"
 
 int client_creator(){
-    int client_socket = checked(socket(AF_INET, SOCK_STREAM, 0));
+    int client_socket = socket(AF_INET, SOCK_STREAM, 0);
 
     struct sockaddr_in client_adrr;
     client_adrr.sin_family = AF_INET;
@@ -18,7 +18,7 @@ int client_creator(){
 
     // Conversion de string vers IPv4 ou IPv6 en binaire
     inet_pton(AF_INET, "127.0.0.1", &client_adrr.sin_addr);
-    checked(connect(client_socket, (const struct sockaddr *)&client_adrr, sizeof(client_adrr)));
+    connect(client_socket, (const struct sockaddr *)&client_adrr, sizeof(client_adrr));
     printf("Connected.\n");
 
     char buffer[1024];
@@ -36,10 +36,10 @@ int client_creator(){
         // et la réception converti du big-endian vers
         // le boutisme local (ntohl())
         lenght = htonl(lenght);
-        checked_wr(write(client_socket, &lenght, 4));
+        write(client_socket, &lenght, 4);
         
         lenght = ntohl(lenght);
-        checked_wr(write(client_socket, buffer, lenght));
+        write(client_socket, buffer, lenght);
         
         if (!precise_read(client_socket, buffer, lenght)) {
             return 1;
