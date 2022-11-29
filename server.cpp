@@ -10,6 +10,18 @@
 #include <string.h>
 #include <pthread.h>
 
+void* handle_connection(int* p_client_socket){
+  char buffer[1024];
+  int lu;
+  while ((lu = read(*p_client_socket, buffer, 1024)) > 0) {
+    printf("Request: %s", buffer);
+    write(*p_client_socket, buffer, lu);
+  }
+
+  close(p_client_socket);
+  printf("Closing connection...");
+}
+
 int server_creator(){
     // Permet que write() retourne 0 en cas de réception
     // du signal SIGPIPE.
@@ -28,36 +40,24 @@ int server_creator(){
     bind(socket_server, (struct sockaddr *)&address, sizeof(address));
     printf("Bind: %d\n", socket_server);
     listen(socket_server, 8); 
-    printf("Listening\n");
+    printf("Listening...\n");
 
-    pthread_t client_id[4];
-    char buffer[1024];
-    int lu;
+    while(true){
 
-    for(int i=0; i<3;i++){
-      pthread_create(&client_id[i],NULL,NULL,NULL);//besoin d une fonction pour test
-      
       struct sockaddr_in client_adrr;
       size_t addrlen = sizeof(client_adrr);
       int client_socket = accept(socket_server, (struct sockaddr *)&client_adrr, (socklen_t *)&addrlen);
 
-      printf("Accepted connexion: %d\n", client_socket);
+      printf("Accepted connection: %d\n", client_socket);  
+      pthread_t client_thread;
+      int *p_client=(int*)malloc(sizeof(int));
 
-      while ((lu = read(client_socket, buffer, 1024)) > 0) {
-        write(client_socket, buffer, lu);
-      }
+      pthread_create(&client_thread,NULL,handle_connection,p_client);
     }
-
-    for(int i=0; i<3; i++){
-      pthread_join(client_id[i],NULL);
-    }
-    
-    close(socket_server);
-    printf("Closing server...\n");
     return 0;
 }
 
 int main(){
   server_creator();
-  return 1;
+  return 0;
 }
