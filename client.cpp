@@ -38,7 +38,7 @@ int request_reader(int client_socket){
     return 0;
 }
 
-int client_creator(){
+int client_handler(){
     
     signal(SIGPIPE, SIG_IGN);
     int client_socket = socket(AF_INET, SOCK_STREAM, 0);
@@ -56,6 +56,6 @@ int client_creator(){
 }
 
 int main(){
-    client_creator();
+    client_handler();
     return 0;
 }
