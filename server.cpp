@@ -22,7 +22,7 @@ void* handle_connection(void* p_client_socket){
   }
 
   close(client_socket);
-  printf("Closing connection...");
+  printf("Closing connection with client number: %i\n",client_socket);
   return NULL;
 }
 
