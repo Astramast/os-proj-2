@@ -34,7 +34,6 @@ size_t safe_write(int fd, const void *buffer, size_t nbytes);
  * @brief the result of a query.
  **/
 
-bool precise_read(int fd, char* buffer, int size);
 
 void log_query(query_result_t *result);
 /**

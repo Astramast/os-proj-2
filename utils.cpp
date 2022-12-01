@@ -23,19 +23,6 @@ size_t safe_write(int fd, const void* buffer, size_t nbytes) {
     return (size_t)bytes_written;
 }
 
-bool precise_read(int fd, char* buffer, int size) {
-   int lu, i = 0;
-   while (i < size && (lu = read(fd, buffer, size - i)) > 0) {
-      i += lu;
-   }
-   
-   if (lu < 0) {
-      perror("read()");
-   }
-   
-   return lu > 0;
-}
-
 void log_query(query_result_t* result) {
     char buffer[512];
     if (result->status == QUERY_SUCCESS) {

@@ -148,18 +148,6 @@ int main(int argc, char const *argv[]) {
 
 				
 		}
-	//End of program procedure
-	/*
-	for (int i=0; i<4; i++){
-		kill(sons[i], SIGINT);
-		int temp=EOF;
-		write(pipes[2*i][1], &temp, sizeof(int));
-		close(pipes[2*i][1]);
-		close(pipes[2*i+1][0]);
-		int state;
-		wait(&state);
-	}
-	*/
 	db_save(&db, db_path);
 	printf("Bye bye!\n");
 	}
