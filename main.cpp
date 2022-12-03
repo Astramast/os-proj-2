@@ -1,6 +1,12 @@
 #include "server.h"
 #include "client.h"
 
+/*
+Authors : 
+Installé Arthur Matricule 495303
+Kevin Issa Matricule 514550
+*/
+
 void server_proccessing(data_storage* data){//nom a changer
 
     int socket_server=server_handler();

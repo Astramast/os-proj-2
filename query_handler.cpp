@@ -1,10 +1,4 @@
 #include "query_handler.h"
-/*
-Authors : 
-Installé Arthur Matricule 495303
-Kevin Issa Matricule 514550
-*/
-
 
 void sigint_handler(int received){
 	if (received == SIGINT){

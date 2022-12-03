@@ -1,5 +1,4 @@
 #include "server.h"
-#include "query_handler.h"
 
 void* handle_connection(void* data){
   char user_query[256];
