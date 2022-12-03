@@ -1,19 +1,10 @@
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <unistd.h>
-#include <netdb.h>
-#include <iostream>
-#include <arpa/inet.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <pthread.h>
+#include "client.h"
 
 int request_reader(int client_socket){
-    char buffer[1024];
+    char buffer[256];
     int lenght, i, ret;
 
-    while (fgets(buffer, 1024, stdin) != NULL) {
+    while (fgets(buffer, 256, stdin) != NULL) {
         lenght = strlen(buffer) + 1;
         write(client_socket, buffer, strlen(buffer) + 1);
         printf("Sending...\n");
@@ -53,10 +44,5 @@ int client_handler(){
     connect(client_socket, (const struct sockaddr *)&client_adrr, sizeof(client_adrr));
     printf("Connected.\n");
     request_reader(client_socket);
-    return 0;
-}
-
-int main(){
-    client_handler();
     return 0;
 }

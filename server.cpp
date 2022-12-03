@@ -1,24 +1,31 @@
-#include <sys/types.h>
-#include "iostream"
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <unistd.h>
-#include <netdb.h>
-#include <arpa/inet.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <pthread.h>
+#include "server.h"
+#include "query_handler.h"
 
-void* handle_connection(void* p_client_socket){
-  char buffer[1024];
+void* handle_connection(void* data){
+  char user_query[256];
   int lu;
-  int client_socket=*(int*)p_client_socket;
-  free(p_client_socket);
+  data_storage* data_thread=(data_storage*)data;//nom a changer ptetre
+  int client_socket=*data_thread->p_client;
+  free(data_thread->p_client);
   
-  while ((lu = read(client_socket, buffer, 1024)) > 0) {
-    printf("Request readed: %s", buffer);
-    write(client_socket, buffer, lu);
+  while ((lu = read(client_socket, user_query, 256)) > 0) {
+
+		query_result_t query;
+    query_result_init(&query, user_query);
+
+    printf("Running query %s\n", query.query);
+    strcpy(data_thread->query_parsing, query.query);
+
+    int query_number=identify_query(query);
+    execute_query(query_number,data_thread, &data_thread->db, &query);
+    query.query[strcspn(query.query, "\n")]=0;
+
+    struct timespec now;
+    clock_gettime(CLOCK_REALTIME, &now);
+    query.end_ns = now.tv_nsec + 1e9 * now.tv_sec;
+    log_query(&query);
+
+    write(client_socket, user_query, lu);
   }
 
   close(client_socket);
@@ -26,9 +33,9 @@ void* handle_connection(void* p_client_socket){
   return NULL;
 }
 
-void client_receiver(int socket_server){
+void client_receiver(int socket_server,data_storage* data){
 
-  while(true){
+  while(!SIG){
     
     struct sockaddr_in client_adrr;
     size_t addrlen = sizeof(client_adrr);
@@ -39,7 +46,8 @@ void client_receiver(int socket_server){
     pthread_t client_thread;
     int *p_client=(int*)malloc(sizeof(int));
     *p_client=client_socket;
-    pthread_create(&client_thread,NULL,handle_connection,p_client);
+    data->p_client=p_client;
+    pthread_create(&client_thread,NULL,handle_connection,&data);
   }   
 
 }
@@ -64,11 +72,5 @@ int server_handler(){
     listen(socket_server, 3); 
     printf("Listening...\n");
     
-    client_receiver(socket_server);
-    return 0;
-}
-
-int main(){
-  server_handler();
-  return 0;
+    return socket_server;
 }
