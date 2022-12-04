@@ -28,8 +28,8 @@ struct data_storage{
 
 };
 
-bool SIG=false;
-bool USR1=false;
+static bool SIG=false;
+static bool USR1=false;
 
 void sigint_handler(int received);
 

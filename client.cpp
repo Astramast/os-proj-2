@@ -46,3 +46,8 @@ int client_handler(){
     request_reader(client_socket);
     return 0;
 }
+
+int main(){
+    client_handler();
+    return 0;
+}
