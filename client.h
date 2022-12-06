@@ -13,7 +13,13 @@
 
 
 int request_reader(int client_socket);
+/**
+ * @brief: Wait a query on stdin and send it to the server and read the response
+ */
 
-int client_handler();
-
+void client_handler();
+/**
+ * @brief Create the socket server
+ * 
+ */
 #endif

@@ -1,13 +1,14 @@
 #include "server.h"
-
+//faire struct server
 void* handle_connection(void* data){
-  char user_query[256];
+  char user_query[1024];
   int lu;
-  data_storage* data_thread=(data_storage*)data;//nom a changer ptetre
-  int client_socket=*data_thread->p_client;
-  free(data_thread->p_client);
+  data_storage* data_thread=(data_storage*) data;//nom a changer ptetre
+  cout<<"data pointeur: "<<data_thread->p_client<<endl;
+  cout<<"data sans pointeur: "<<data_thread->p_client<<endl;
+  int client_socket= *data_thread->p_client;
   
-  while ((lu = read(client_socket, user_query, 256)) > 0) {
+  while ((lu = read(client_socket, user_query, 1024)) >= 0) {
 
 		query_result_t query;
     query_result_init(&query, user_query);
@@ -32,28 +33,30 @@ void* handle_connection(void* data){
   return NULL;
 }
 
-void client_receiver(int socket_server,data_storage* data){
+void client_receiver(int* socket_server,data_storage* data){
 
-  while(!SIG){
-    
+  while(true){
     struct sockaddr_in client_adrr;
-    size_t addrlen = sizeof(client_adrr);
-    int client_socket = accept(socket_server, (struct sockaddr *)&client_adrr, (socklen_t *)&addrlen);
-
-    printf("Accepted connection: %d\n", client_socket);  
-
+    size_t addrlen = sizeof(socket_server);
+    cout<<"vas ici"<<endl;
+    int client_socket = accept(*socket_server, (struct sockaddr *)&client_adrr, (socklen_t *)addrlen);
+    printf("Accepted connection: %d\n", client_socket);
+    fflush(stdout);
+    //create the thread and store the client socket in data storage
     pthread_t client_thread;
+    cout<<"thread crée"<<endl;
     int *p_client=(int*)malloc(sizeof(int));
     *p_client=client_socket;
     data->p_client=p_client;
+    cout<<data->p_client<<endl;
+    free(p_client);
     pthread_create(&client_thread,NULL,handle_connection,&data);
   }   
 
 }
 
-int server_handler(){
-    // Permet que write() retourne 0 en cas de réception
-    // du signal SIGPIPE.
+void server_handler(data_storage* data){
+
     signal(SIGPIPE, SIG_IGN);
     int socket_server= socket(AF_INET, SOCK_STREAM, 0);
 
@@ -68,8 +71,8 @@ int server_handler(){
 
     bind(socket_server, (struct sockaddr *)&address, sizeof(address));
     printf("Bind: %d\n", socket_server);
-    listen(socket_server, 3); 
+    listen(socket_server, 40); 
     printf("Listening...\n");
     
-    return socket_server;
+    client_receiver(&socket_server,data);
 }

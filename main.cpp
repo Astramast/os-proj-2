@@ -1,17 +1,10 @@
 #include "server.h"
 #include "client.h"
-
 /*
 Authors : 
 Installé Arthur Matricule 495303
 Kevin Issa Matricule 514550
 */
-
-void server_proccessing(data_storage* data){//nom a changer
-
-    int socket_server=server_handler();
-    client_receiver(socket_server,data);
-}
 
 int main(int argc, char const *argv[]){
     printf("STARTING\n");
@@ -25,12 +18,7 @@ int main(int argc, char const *argv[]){
     db_init(&data.db);
     db_load(&data.db, db_path);
     
-    signal(SIGINT, sigint_handler);
-    if(USR1){
-        db_save(&data.db,db_path);
-    }
-
-    server_proccessing(&data);
+    server_handler(&data);
 
     db_save(&data.db, db_path);
 	printf("Bye bye!\n");

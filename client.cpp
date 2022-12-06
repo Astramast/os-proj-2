@@ -1,10 +1,10 @@
 #include "client.h"
 
 int request_reader(int client_socket){
-    char buffer[256];
+    char buffer[1024];
     int lenght, i, ret;
 
-    while (fgets(buffer, 256, stdin) != NULL) {
+    while (fgets(buffer, 1024, stdin) != NULL) {
         lenght = strlen(buffer) + 1;
         write(client_socket, buffer, strlen(buffer) + 1);
         printf("Sending...\n");
@@ -30,7 +30,7 @@ int request_reader(int client_socket){
     return 0;
 }
 
-int client_handler(){
+void client_handler(){
     
     signal(SIGPIPE, SIG_IGN);
     int client_socket = socket(AF_INET, SOCK_STREAM, 0);
@@ -44,7 +44,6 @@ int client_handler(){
     connect(client_socket, (const struct sockaddr *)&client_adrr, sizeof(client_adrr));
     printf("Connected.\n");
     request_reader(client_socket);
-    return 0;
 }
 
 int main(){

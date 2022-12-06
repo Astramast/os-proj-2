@@ -12,12 +12,27 @@
 #include <string.h>
 #include <pthread.h>
 #include "query_handler.h"
+#include <iostream>
+using namespace std;
 
+struct server_data{
+    sockaddr_in address;
+};
 
-void* handle_connection(void* p_client_socket);
+void* handle_connection(void* data);
+/**
+ * @brief: receive a query, initiate it, identify it, parse it and execute it. 
+ * Then create a log file with the result and send the result to the client
+ * @param data: data storage structure sended into the thread
+ */
 
-void client_receiver(int socket_server,data_storage* data);
-
-int server_handler();
+void client_receiver(int* socket_server,data_storage* data);
+/**
+ * @brief: create a new thread for each new client
+ */
+void server_handler(data_storage* data);
+/**
+ * @brief: create the server socket
+ */
 
 #endif

@@ -36,8 +36,14 @@ void sigint_handler(int received);
 void sigusr1_handler(int received);
 
 int identify_query(query_result_t query);
-
+/**
+ * @brief: identify wich query is received
+ * 
+ */
 void execute_query(int query_number, data_storage* data, database_t* db, query_result_t* query);
-
+/**
+ * @brief: parse and execute the query
+ * @param data: a pointer to the data storage where every parameter needed for the parsing and the execution is
+ */
 
 #endif

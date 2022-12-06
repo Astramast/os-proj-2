@@ -2,14 +2,19 @@
 FLAGS=-std=c++17 -Wall -Werror -Wpedantic -D_GNU_SOURCE
 COMPILER=g++
 
-main: main.cpp student.o parsing.o db.o query.o utils.o server.o client.o
-	${COMPILER} -o tinydb main.cpp parsing.o student.o db.o query.o utils.o server.o client.o ${FLAGS}
+all: smalldb client
+
+smalldb: main.cpp student.o parsing.o db.o query.o utils.o server.o query_handler.o
+	${COMPILER} -o smalldb main.cpp parsing.o student.o db.o query.o utils.o server.o query_handler.o ${FLAGS} -lpthread
 	rm *.o
 
-run:
-	make main && ./tinydb
+client: client.cpp client.h	
+	${COMPILER} -o client client.cpp ${FLAGS} -lpthread
 
-parsing.o: parsing.cpp parsing.h student.o
+run:
+	make main && ./smalldb
+
+parsing.o: parsing.cpp parsing.h
 	${COMPILER} -c parsing.cpp ${FLAGS}
 
 student.o: student.cpp student.h
@@ -21,11 +26,11 @@ query.o: query.cpp query.h
 db.o: db.cpp db.h
 	${COMPILER} -c db.cpp ${FLAGS}
 
-server.o:server.cpp utils.o
+server.o: server.cpp server.h
 	${COMPILER} -c server.cpp ${FLAGS}
 
-client.o:client.cpp utils.o
-	${COMPILER} -c client.cpp ${FLAGS}
+query_handler.o: query_handler.cpp query_handler.h
+	${COMPILER} -c query_handler.cpp ${FLAGS}
 
 utils.o: utils.cpp utils.h
 	${COMPILER} -c utils.cpp ${FLAGS}
