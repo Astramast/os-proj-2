@@ -1,7 +1,7 @@
 #ifndef _SERVER_H
 #define _SERVER_H
-
 #include <sys/types.h>
+#include <iostream>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <unistd.h>
@@ -12,7 +12,7 @@
 #include <string.h>
 #include <pthread.h>
 #include "query_handler.h"
-#include <iostream>
+
 using namespace std;
 
 struct server_data{
@@ -26,11 +26,11 @@ void* handle_connection(void* data);
  * @param data: data storage structure sended into the thread
  */
 
-void client_receiver(int* socket_server,data_storage* data);
+void client_receiver(int* socket_server, data_storage* data);
 /**
  * @brief: create a new thread for each new client
  */
-void server_handler(data_storage* data);
+int server_handler(data_storage* data);
 /**
  * @brief: create the server socket
  */

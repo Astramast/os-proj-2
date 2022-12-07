@@ -1,30 +1,19 @@
 #include "server.h"
-//faire struct server
+//WARNING: PASSER PAR LE HEADER AU LIEU D INCLURE DIRECTEMENT LES LIBRAIRIES PEUT PROVOQUER DES PROBLEMES
+//JE SAIS PAS POURQUOI FUCK PROGRA
 void* handle_connection(void* data){
   char user_query[1024];
   int lu;
-  data_storage* data_thread=(data_storage*) data;//nom a changer ptetre
-  cout<<"data pointeur: "<<data_thread->p_client<<endl;
-  cout<<"data sans pointeur: "<<data_thread->p_client<<endl;
-  int client_socket= *data_thread->p_client;
+
+  data_storage* data_thread= (data_storage*)data;
   
-  while ((lu = read(client_socket, user_query, 1024)) >= 0) {
+  std::cout<<"pointeur data: "<<data_thread->p_client<<std::endl;
+  int client_socket= *data_thread->p_client;//seg fault vient d ici
+  std::cout<<"pas pointeur: "<<client_socket<<std::endl;
+  //free(data_thread->p_client);
 
-		query_result_t query;
-    query_result_init(&query, user_query);
-
-    printf("Running query %s\n", query.query);
-    strcpy(data_thread->query_parsing, query.query);
-
-    int query_number=identify_query(query);
-    execute_query(query_number,data_thread, &data_thread->db, &query);
-    query.query[strcspn(query.query, "\n")]=0;
-
-    struct timespec now;
-    clock_gettime(CLOCK_REALTIME, &now);
-    query.end_ns = now.tv_nsec + 1e9 * now.tv_sec;
-    log_query(&query);
-
+  while ((lu = read(client_socket, user_query, 1024)) > 0) {
+    printf("Request readed: %s", user_query);
     write(client_socket, user_query, lu);
   }
 
@@ -37,27 +26,23 @@ void client_receiver(int* socket_server,data_storage* data){
 
   while(true){
     struct sockaddr_in client_adrr;
-    size_t addrlen = sizeof(socket_server);
-    cout<<"vas ici"<<endl;
-    int client_socket = accept(*socket_server, (struct sockaddr *)&client_adrr, (socklen_t *)addrlen);
-    printf("Accepted connection: %d\n", client_socket);
-    fflush(stdout);
-    //create the thread and store the client socket in data storage
+    size_t addrlen = sizeof(client_adrr);
+    int client_socket = accept(*socket_server, (struct sockaddr *)&client_adrr, (socklen_t *)&addrlen);
+
+    printf("Accepted connection: %d\n", client_socket);  
+
     pthread_t client_thread;
-    cout<<"thread crée"<<endl;
+
     int *p_client=(int*)malloc(sizeof(int));
     *p_client=client_socket;
     data->p_client=p_client;
-    cout<<data->p_client<<endl;
-    free(p_client);
+    std::cout<<"data client: "<<*data->p_client<<std::endl;
     pthread_create(&client_thread,NULL,handle_connection,&data);
-  }   
+  }  
 
 }
 
-void server_handler(data_storage* data){
-
-    signal(SIGPIPE, SIG_IGN);
+int server_handler(data_storage* data){
     int socket_server= socket(AF_INET, SOCK_STREAM, 0);
 
     int opt = 1;
@@ -69,10 +54,25 @@ void server_handler(data_storage* data){
     address.sin_addr.s_addr = INADDR_ANY;
     address.sin_port = htons(28772);   
 
-    bind(socket_server, (struct sockaddr *)&address, sizeof(address));
+    int check_bind = bind(socket_server, (struct sockaddr *)&address, sizeof(address));
+    //ne bind pas une fois sur 2 ca met bien
+    if(check_bind == -1){
+      printf("Failed bind. Trying to bind again\n");
+      bind(socket_server, (struct sockaddr *)&address, sizeof(address));
+      printf("%d",errno);
+    }
+
     printf("Bind: %d\n", socket_server);
-    listen(socket_server, 40); 
+    listen(socket_server, 20); 
     printf("Listening...\n");
     
     client_receiver(&socket_server,data);
+    close(socket_server);
+    return 0;
+}
+
+int main(){
+  data_storage data;
+  server_handler(&data);
+  return 0;
 }

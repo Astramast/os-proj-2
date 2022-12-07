@@ -1,4 +1,12 @@
-#include "client.h"
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <unistd.h>
+#include <netdb.h>
+#include <arpa/inet.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <pthread.h>
 
 int request_reader(int client_socket){
     char buffer[1024];
@@ -32,7 +40,6 @@ int request_reader(int client_socket){
 
 void client_handler(){
     
-    signal(SIGPIPE, SIG_IGN);
     int client_socket = socket(AF_INET, SOCK_STREAM, 0);
 
     struct sockaddr_in client_adrr;

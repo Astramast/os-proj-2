@@ -24,7 +24,7 @@ struct data_storage{
 	unsigned id;
 	char query_parsing[256];
 	database_t db;
-	int *p_client;
+	int *p_client=nullptr;
 
 };
 
