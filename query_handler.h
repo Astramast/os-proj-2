@@ -23,8 +23,8 @@ struct data_storage{
 	char update_value[256];
 	unsigned id;
 	char query_parsing[256];
-	database_t db;
-	int *p_client=nullptr;
+	database_t* db;
+	int socket_data;
 
 };
 
