@@ -8,7 +8,7 @@ void* handle_connection(void* data){
   int socket_client = data_thread.socket_data;
 
   while ((lu = read(socket_client, user_query, 1024)) > 0) {
-    printf("Request readed: %s", user_query);
+    printf("Request readed from client number %i: %s", socket_client, user_query);
     write(socket_client, user_query, lu);
   }
 
@@ -17,7 +17,7 @@ void* handle_connection(void* data){
   return NULL;
 }
 
-void client_receiver(int* socket_server,data_storage* data){
+void client_receiver(int* socket_server, database_t* db){
 
   while(true){
 
@@ -29,14 +29,15 @@ void client_receiver(int* socket_server,data_storage* data){
 
     pthread_t client_thread;
     data_storage* client_data=(data_storage*)malloc(sizeof(client_data));
-    
+
     client_data->socket_data=client_socket;
+    client_data->db=db;
     pthread_create(&client_thread,NULL,handle_connection,client_data);
   }  
 
 }
 
-int server_handler(data_storage* data){
+int server_handler(database_t* db){
     int socket_server= socket(AF_INET, SOCK_STREAM, 0);
 
     int opt = 1;
@@ -52,20 +53,14 @@ int server_handler(data_storage* data){
 
     if(check_bind == -1){
       printf("Failed bind. Trying to bind again\n");
-      bind(socket_server, (struct sockaddr *)&address, sizeof(address));
+      ::bind(socket_server, (struct sockaddr *)&address, sizeof(address));
     }
 
     printf("Bind: %d\n", socket_server);
     listen(socket_server, 20); 
     printf("Listening...\n");
     
-    client_receiver(&socket_server,data);
+    client_receiver(&socket_server, db);
     close(socket_server);
     return 0;
-}
-
-int main(){
-  data_storage data;
-  server_handler(&data);
-  return 0;
 }

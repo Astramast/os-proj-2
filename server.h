@@ -1,7 +1,6 @@
 #ifndef _SERVER_H
 #define _SERVER_H
 #include <sys/types.h>
-#include <iostream>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <unistd.h>
@@ -26,11 +25,11 @@ void* handle_connection(void* data);
  * @param data: data storage structure sended into the thread
  */
 
-void client_receiver(int* socket_server, data_storage* data);
+void client_receiver(int* socket_server,database_t* db);
 /**
  * @brief: create a new thread for each new client
  */
-int server_handler(data_storage* data);
+int server_handler(database_t* db);
 /**
  * @brief: create the server socket
  */

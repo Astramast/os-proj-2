@@ -14,13 +14,13 @@ int main(int argc, char const *argv[]){
 	}
 	const char *db_path = argv[1];
 	printf("Entered path : %s\n", db_path);
-    data_storage data;
-    db_init(&data.db);
-    db_load(&data.db, db_path);
+    database_t db;
+    db_init(&db);
+    db_load(&db, db_path);
     
-    server_handler(&data);
+    server_handler(&db);
 
-    db_save(&data.db, db_path);
+    db_save(&db, db_path);
 	printf("Bye bye!\n");
     return 0;
 }

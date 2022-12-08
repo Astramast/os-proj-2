@@ -49,7 +49,7 @@ void client_handler(){
     // Conversion de string vers IPv4 ou IPv6 en binaire
     inet_pton(AF_INET, "127.0.0.1", &client_adrr.sin_addr);
     connect(client_socket, (const struct sockaddr *)&client_adrr, sizeof(client_adrr));
-    printf("Connected.\n");
+    printf("Connected.\nEnter your query: \n");
     request_reader(client_socket);
 }
 

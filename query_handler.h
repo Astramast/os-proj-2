@@ -14,15 +14,15 @@
 
 struct data_storage{
 
-	char fname[64];
-	char lname[64];
-	char section[64];
-	char field[256];
-	char value[256];
-	char field_to_update[256];
-	char update_value[256];
+	char fname[64]="";
+	char lname[64]="";
+	char section[64]="";
+	char field[256]="";
+	char value[256]="";
+	char field_to_update[256]="";
+	char update_value[256]="";
 	unsigned id;
-	char query_parsing[256];
+	char query_parsing[256]="";
 	database_t* db;
 	int socket_data;
 
