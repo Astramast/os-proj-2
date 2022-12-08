@@ -23,9 +23,9 @@ struct data_storage{
 	char update_value[256]="";
 	unsigned id;
 	char query_parsing[256]="";
+	char error_msg[64]="";
 	database_t* db;
 	int socket_data;
-
 };
 
 static bool SIG=false;
@@ -40,7 +40,7 @@ int identify_query(query_result_t query);
  * @brief: identify wich query is received
  * 
  */
-void execute_query(int query_number, data_storage* data, database_t* db, query_result_t* query);
+void execute_query(int query_number, data_storage* data, query_result_t* query);
 /**
  * @brief: parse and execute the query
  * @param data: a pointer to the data storage where every parameter needed for the parsing and the execution is

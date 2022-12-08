@@ -31,7 +31,7 @@ int identify_query(query_result_t query){
 	return -1;
 }
 
-void execute_query(int query_number, data_storage* data, database_t* db, query_result_t* query){
+void execute_query(int query_number, data_storage* data, query_result_t* query){
 	bool everything_fine=true;
 	struct tm birthdate;
 	if (query_number == 0){
@@ -43,34 +43,34 @@ void execute_query(int query_number, data_storage* data, database_t* db, query_r
 			strcpy(student.lname, data->lname);
 			strcpy(student.section, data->section);
 			student.birthdate=birthdate;
-			insert(&student, db, query);
+			insert(&student, data->db, query);
 		}
 		else {everything_fine = false;}
 	}
 
 	else if (query_number == 1){
 		if (parse_selectors(data->query_parsing, data->field, data->value)){
-			select(data->field, data->value, db, query);
+			select(data->field, data->value, data->db, query);
 		}
 		else{everything_fine = false;}
 	}
 
 	else if (query_number == 2){
 		if (parse_selectors(data->query_parsing, data->field, data->value)){
-			delete_function(data->field, data->value, db, query);
+			delete_function(data->field, data->value, data->db, query);
 		}
 		else{everything_fine = false;}
 	}
 
 	else if (query_number == 3){
 		if (parse_update(data->query_parsing, data->field, data->value, data->field_to_update, data->update_value)){
-			update(data->field, data->value, data->field_to_update, data->update_value, db, query);
+			update(data->field, data->value, data->field_to_update, data->update_value, data->db, query);
 		}
 		else{everything_fine = false;}
 	}
 
-	else if(query_number == -1){printf("E: Wrong query. Use insert, select, delete, update\n");}
+	else if(query_number == -1){strcpy(data->error_msg,"E: Wrong query. Use insert, select, delete, update\n");}
 
 	else{everything_fine=false;}
-	if (!everything_fine){printf("Wrong query argument given. Failed.\n");}
+	if (!everything_fine){strcpy(data->error_msg,"Wrong query argument to parse was given.\n");}
 }
