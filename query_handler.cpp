@@ -12,10 +12,11 @@ void sigusr1_handler(int received){
 	}
 }
 
-int identify_query(query_result_t query){
+int identify_query(char* query){
 	char* temp;
-	temp = query.query;
+	temp = query;
 	char* query_first_word = strtok_r(NULL, " ", &temp);
+	
 	if (strcmp(query_first_word, "insert")==0){
 		return 0;
 	}

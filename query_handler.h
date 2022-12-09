@@ -26,6 +26,7 @@ struct data_storage{
 	char error_msg[64]="";
 	database_t* db;
 	int socket_data;
+	pthread_mutex_t* new_query, *write_access, *reader_access;
 };
 
 static bool SIG=false;
@@ -35,7 +36,7 @@ void sigint_handler(int received);
 
 void sigusr1_handler(int received);
 
-int identify_query(query_result_t query);
+int identify_query(char* query);
 /**
  * @brief: identify wich query is received
  * 

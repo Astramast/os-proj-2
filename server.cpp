@@ -1,6 +1,6 @@
 #include "server.h"
 
-void execute_request(char user_query[1024], data_storage* data_thread){
+void execute_request(char user_query[1024],int query_number, data_storage* data_thread){
 
   query_result_t query;
   query_result_init(&query, user_query);
@@ -8,7 +8,6 @@ void execute_request(char user_query[1024], data_storage* data_thread){
   strcpy(data_thread->query_parsing, query.query);
   printf("Running query %s", data_thread->query_parsing);
 
-  int query_number = identify_query(query);
   execute_query(query_number, data_thread, &query);
   query.query[strcspn(query.query, "\n")]=0;
 
@@ -20,16 +19,51 @@ void execute_request(char user_query[1024], data_storage* data_thread){
 }
 
 void* handle_connection(void* data){
-  char user_query[1024];
-  int lu;
+  char user_query[256];
+  int lu, readers_number = 0;
   data_storage data_thread= *(data_storage*)data;
   free(data);
   int socket_client = data_thread.socket_data;
 
-  while ((lu = read(socket_client, user_query, 1024)) > 0) {
+  while ((lu = read(socket_client, user_query, 256)) > 0) {
 
     printf("Request readed from client number %i: %s", socket_client, user_query);
-    execute_request(user_query, &data_thread);
+    int query_number = identify_query(user_query);
+
+    if(query_number != 1){
+
+      pthread_mutex_lock(data_thread.new_query);
+      pthread_mutex_lock(data_thread.write_access);
+      pthread_mutex_unlock(data_thread.new_query);
+
+      execute_request(user_query, query_number, &data_thread);
+
+      pthread_mutex_unlock(data_thread.write_access);
+    }
+
+    else{
+      
+      pthread_mutex_lock(data_thread.new_query);
+      pthread_mutex_lock(data_thread.reader_access);
+
+      if(readers_number == 0){
+        pthread_mutex_lock(data_thread.write_access);
+      }
+      readers_number++;
+
+      pthread_mutex_unlock(data_thread.new_query);
+      pthread_mutex_unlock(data_thread.reader_access);
+      execute_request(user_query, query_number, &data_thread);
+
+      pthread_mutex_lock(data_thread.reader_access);
+      readers_number--;
+
+      if (readers_number == 0){
+        pthread_mutex_unlock(data_thread.write_access);
+      }
+
+      pthread_mutex_unlock(data_thread.reader_access);
+    }
 
     write(socket_client, user_query, lu);
   }
@@ -54,6 +88,11 @@ void client_receiver(int* socket_server, database_t* db){
 
     client_data->socket_data=client_socket;
     client_data->db=db;
+
+    pthread_mutex_init(client_data->new_query, NULL);
+    pthread_mutex_init(client_data->write_access, NULL);
+    pthread_mutex_init(client_data->reader_access, NULL);
+
     pthread_create(&client_thread,NULL,handle_connection,client_data);
   }  
 

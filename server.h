@@ -12,7 +12,7 @@
 #include <pthread.h>
 #include "query_handler.h"
 
-void execute_request(char user_query[1024], data_storage* data_thread);
+void execute_request(char user_query[1024], int query_number, data_storage* data_thread);
 
 void* handle_connection(void* data);
 /**
