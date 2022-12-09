@@ -1,5 +1,24 @@
 #include "server.h"
 
+void execute_request(char user_query[1024], data_storage* data_thread){
+
+  query_result_t query;
+  query_result_init(&query, user_query);
+
+  strcpy(data_thread->query_parsing, query.query);
+  printf("Running query %s", data_thread->query_parsing);
+
+  int query_number = identify_query(query);
+  execute_query(query_number, data_thread, &query);
+  query.query[strcspn(query.query, "\n")]=0;
+
+  struct timespec now;
+  clock_gettime(CLOCK_REALTIME, &now);
+  query.end_ns = now.tv_nsec + 1e9 * now.tv_sec;
+  log_query(&query);
+
+}
+
 void* handle_connection(void* data){
   char user_query[1024];
   int lu;
@@ -8,7 +27,10 @@ void* handle_connection(void* data){
   int socket_client = data_thread.socket_data;
 
   while ((lu = read(socket_client, user_query, 1024)) > 0) {
+
     printf("Request readed from client number %i: %s", socket_client, user_query);
+    execute_request(user_query, &data_thread);
+
     write(socket_client, user_query, lu);
   }
 
@@ -56,7 +78,7 @@ int server_handler(database_t* db){
       ::bind(socket_server, (struct sockaddr *)&address, sizeof(address));
     }
 
-    printf("Bind: %d\n", socket_server);
+    printf("\nBind: %d\n", socket_server);
     listen(socket_server, 20); 
     printf("Listening...\n");
     

@@ -33,6 +33,7 @@ void db_load(database_t *db, const char *path) {
         db_add(db, student);
     }
     fclose(file);
+	printf("%ld students loaded.\n", db->lsize);
 }
 
 void db_init(database_t *db) {

@@ -12,11 +12,7 @@
 #include <pthread.h>
 #include "query_handler.h"
 
-using namespace std;
-
-struct server_data{
-    sockaddr_in address;
-};
+void execute_request(char user_query[1024], data_storage* data_thread);
 
 void* handle_connection(void* data);
 /**

@@ -69,8 +69,8 @@ void execute_query(int query_number, data_storage* data, query_result_t* query){
 		else{everything_fine = false;}
 	}
 
-	else if(query_number == -1){strcpy(data->error_msg,"E: Wrong query. Use insert, select, delete, update\n");}
+	else if(query_number == -1){strcpy(data->error_msg,"Error: Wrong query. Use insert, select, delete, update\n");}
 
 	else{everything_fine=false;}
-	if (!everything_fine){strcpy(data->error_msg,"Wrong query argument to parse was given.\n");}
+	if (!everything_fine){strcpy(data->error_msg,"Error: Wrong query argument to parse was given.\n");}
 }
