@@ -89,6 +89,7 @@ void client_receiver(int* socket_server, database_t* db){
     client_data->socket_data=client_socket;
     client_data->db=db;
 
+    //les mutex init donnent des seg fault
     pthread_mutex_init(client_data->new_query, NULL);
     pthread_mutex_init(client_data->write_access, NULL);
     pthread_mutex_init(client_data->reader_access, NULL);
