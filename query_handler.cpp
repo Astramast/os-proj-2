@@ -1,5 +1,8 @@
 #include "query_handler.h"
 
+bool SIG;
+bool USR1;
+
 void sigint_handler(int received){
 	if (received == SIGINT){
 		SIG=true;

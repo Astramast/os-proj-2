@@ -21,11 +21,13 @@ int request_reader(int client_socket){
         while (i < lenght) {
             ret = read(client_socket, buffer, lenght - i);
             if (ret <= 0) {
-                if (ret < 0)
+                if (ret < 0){
                     perror("read");
-                else
+				}
+				else{
                     printf("Closing server connection...\n");
                     return 1;
+				}
             }
 
             i += ret;

@@ -29,9 +29,6 @@ struct data_storage{
 	pthread_mutex_t* new_query, *write_access, *reader_access;
 };
 
-static bool SIG=false;
-static bool USR1=false;
-
 void sigint_handler(int received);
 
 void sigusr1_handler(int received);
