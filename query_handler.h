@@ -24,6 +24,7 @@ struct data_storage{
 	unsigned id;
 	char query_parsing[256]="";
 	char error_msg[64]="";
+	char* server_answer = NULL;
 	database_t* db;
 	int socket_data;
 	pthread_mutex_t* new_query, *write_access, *reader_access;

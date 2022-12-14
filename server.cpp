@@ -1,21 +1,51 @@
 #include "server.h"
 
+int MAX_USERS = 20;
+int SERVER_PORT = 28772;
+
+void server_output(query_result_t *query, data_storage* data_thread, int query_number){
+	if (query_number==0){
+		for (size_t i=0; i<query->lsize; i++){
+			char* b = NULL;
+			student_to_str(b, &query->students[0]);
+			b = strcat(b, "\n");
+			data_thread->server_answer = strcat(data_thread->server_answer, b);
+		}
+		snprintf(data_thread->server_answer, 1024,"%li student(s) deleted", query->lsize);
+	}
+	else if (query_number == 1){
+		char* b = NULL;
+		student_to_str(b, &query->students[0]);
+		b = strcat(b,"\n");
+		data_thread->server_answer = strcat(data_thread->server_answer, b);
+	}
+	else if (query_number == 2){
+		snprintf(data_thread->server_answer, 1024,"%li student(s) deleted", query->lsize);
+	}
+	else if (query_number == 3){
+		snprintf(data_thread->server_answer, 1024,"%li student(s) deleted", query->lsize);
+	}
+	else{perror("wrong query number");}
+}
+
+
 void execute_request(char user_query[1024],int query_number, data_storage* data_thread){
 
   query_result_t query;
   query_result_init(&query, user_query);
 
   strcpy(data_thread->query_parsing, query.query);
-  printf("Running query %s", data_thread->query_parsing);
+  printf("Running query %s\n", data_thread->query_parsing);
 
   execute_query(query_number, data_thread, &query);
   query.query[strcspn(query.query, "\n")]=0;
+  
 
   struct timespec now;
   clock_gettime(CLOCK_REALTIME, &now);
   query.end_ns = now.tv_nsec + 1e9 * now.tv_sec;
   log_query(&query);
-
+  printf("%s\n", "logged out");
 }
 
 void* handle_connection(void* data){
@@ -27,45 +57,45 @@ void* handle_connection(void* data){
 
   while ((lu = read(socket_client, user_query, 256)) > 0) {
 
-    printf("Request readed from client number %i: %s", socket_client, user_query);
+	printf("Request readed from client number %i: %s", socket_client, user_query);
     int query_number = identify_query(user_query);
 
     if(query_number != 1){
-
-      pthread_mutex_lock(data_thread.new_query);
+/*
+	  pthread_mutex_lock(data_thread.new_query);
       pthread_mutex_lock(data_thread.write_access);
       pthread_mutex_unlock(data_thread.new_query);
-
+*/
       execute_request(user_query, query_number, &data_thread);
 
-      pthread_mutex_unlock(data_thread.write_access);
+      //pthread_mutex_unlock(data_thread.write_access);
     }
 
     else{
       
-      pthread_mutex_lock(data_thread.new_query);
-      pthread_mutex_lock(data_thread.reader_access);
+      //pthread_mutex_lock(data_thread.new_query);
+      //pthread_mutex_lock(data_thread.reader_access);
 
       if(readers_number == 0){
-        pthread_mutex_lock(data_thread.write_access);
+        //pthread_mutex_lock(data_thread.write_access);
       }
       readers_number++;
 
-      pthread_mutex_unlock(data_thread.new_query);
-      pthread_mutex_unlock(data_thread.reader_access);
+      //pthread_mutex_unlock(data_thread.new_query);
+      //pthread_mutex_unlock(data_thread.reader_access);
       execute_request(user_query, query_number, &data_thread);
-
-      pthread_mutex_lock(data_thread.reader_access);
+	  printf("%s\n", "executed request");
+      //pthread_mutex_lock(data_thread.reader_access);
       readers_number--;
 
       if (readers_number == 0){
-        pthread_mutex_unlock(data_thread.write_access);
+        //pthread_mutex_unlock(data_thread.write_access);
       }
 
-      pthread_mutex_unlock(data_thread.reader_access);
+      //pthread_mutex_unlock(data_thread.reader_access);
     }
-
-    write(socket_client, user_query, lu);
+	printf("%s\n", "end");
+    write(socket_client, data_thread.server_answer, strlen(data_thread.server_answer));
   }
 
   close(socket_client);
@@ -84,16 +114,16 @@ void client_receiver(int* socket_server, database_t* db){
     printf("Accepted connection: %d\n", client_socket);  
 
     pthread_t client_thread;
-    data_storage* client_data=(data_storage*)malloc(sizeof(client_data));
+    data_storage* client_data=(data_storage*)malloc(sizeof(data_storage));
 
     client_data->socket_data=client_socket;
     client_data->db=db;
-
-    //les mutex init donnent des seg fault
+/*    
+	//les mutex init donnent des seg fault
     pthread_mutex_init(client_data->new_query, NULL);
     pthread_mutex_init(client_data->write_access, NULL);
     pthread_mutex_init(client_data->reader_access, NULL);
-
+*/	
     pthread_create(&client_thread,NULL,handle_connection,client_data);
   }  
 
@@ -109,7 +139,7 @@ int server_handler(database_t* db){
 
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = INADDR_ANY;
-    address.sin_port = htons(28772);   
+    address.sin_port = htons(SERVER_PORT); 
 
     int check_bind = ::bind(socket_server, (struct sockaddr *)&address, sizeof(address));
 
@@ -119,7 +149,7 @@ int server_handler(database_t* db){
     }
 
     printf("\nBind: %d\n", socket_server);
-    listen(socket_server, 20); 
+    listen(socket_server, MAX_USERS); 
     printf("Listening...\n");
     
     client_receiver(&socket_server, db);

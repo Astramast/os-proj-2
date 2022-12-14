@@ -1,23 +1,8 @@
 #include "query_handler.h"
 
-bool SIG;
-bool USR1;
-
-void sigint_handler(int received){
-	if (received == SIGINT){
-		SIG=true;
-	}
-}
-
-void sigusr1_handler(int received){
-	if (received == SIGUSR1){
-		USR1=true;
-	}
-}
-
 int identify_query(char* query){
-	char* temp;
-	temp = query;
+	char* temp = (char*)malloc(strlen(query)+1);
+	strcpy(temp, query);
 	char* query_first_word = strtok_r(NULL, " ", &temp);
 	
 	if (strcmp(query_first_word, "insert")==0){
