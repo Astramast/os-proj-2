@@ -4,16 +4,16 @@ int MAX_USERS = 20;
 int SERVER_PORT = 28772;
 
 void server_output(query_result_t *query, data_storage* data_thread, int query_number){
-	if (query_number==0){
+	printf("%i\n", query_number);
+	if (query_number==1){
 		for (size_t i=0; i<query->lsize; i++){
-			char* b = NULL;
+			char b[1024];
 			student_to_str(b, &query->students[0]);
-			b = strcat(b, "\n");
 			data_thread->server_answer = strcat(data_thread->server_answer, b);
 		}
 		snprintf(data_thread->server_answer, 1024,"%li student(s) deleted", query->lsize);
 	}
-	else if (query_number == 1){
+	else if (query_number == 0){
 		char* b = NULL;
 		student_to_str(b, &query->students[0]);
 		b = strcat(b,"\n");
@@ -44,8 +44,8 @@ void execute_request(char user_query[1024],int query_number, data_storage* data_
   struct timespec now;
   clock_gettime(CLOCK_REALTIME, &now);
   query.end_ns = now.tv_nsec + 1e9 * now.tv_sec;
+  server_output(&query, data_thread, query_number);
   log_query(&query);
-  printf("%s\n", "logged out");
 }
 
 void* handle_connection(void* data){
@@ -94,7 +94,6 @@ void* handle_connection(void* data){
 
       //pthread_mutex_unlock(data_thread.reader_access);
     }
-	printf("%s\n", "end");
     write(socket_client, data_thread.server_answer, strlen(data_thread.server_answer));
   }
 
