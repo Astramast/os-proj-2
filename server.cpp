@@ -23,11 +23,13 @@ void server_output(query_result_t *query, data_storage* data_thread, int query_n
 		strcat(data_thread->server_answer, student_str_temp);
 	}
 	else if (query_number == 2){
+		data_thread->server_answer = (char*)malloc(sizeof(char)*32);
 		char amount_str[32];
 		snprintf(amount_str, 32,"%li student(s) deleted", query->lsize);
 		strcat(data_thread->server_answer, amount_str);
 	}
 	else if (query_number == 3){
+		data_thread->server_answer = (char*)malloc(sizeof(char)*32);
 		char amount_str[32];
 		snprintf(amount_str, 32,"%li student(s) updated", query->lsize);
 		strcat(data_thread->server_answer, amount_str);
