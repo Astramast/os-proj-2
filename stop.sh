@@ -1,6 +1,6 @@
 #! /bin/bash
 
-USAGE='./smalldbctl sync'
+USAGE='./smalldbctl stop'
 
 function verify_args () {
 	for param ; do
@@ -11,13 +11,13 @@ function verify_args () {
 	done
 
 	if [ $# -ne 0 ]; then
-		echo "Status accept no argument. Usage : $USAGE" 1>&2
+		echo "Stop accept no argument. Usage : $USAGE" 1>&2
 		exit $BAD_USAGE
 	fi
 }
 
 verify_args "$@"
 for SDB_PID in $(pgrep smalldb); do
-	kill -s SIGUSR1 $TDB_PID
+	kill -s SIGINT $TDB_PID
 done
 
