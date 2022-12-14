@@ -6,28 +6,31 @@ int SERVER_PORT = 28772;
 void server_output(query_result_t *query, data_storage* data_thread, int query_number){
 	printf("%i\n", query_number);
 	if (query_number==1){
-		data_thread->server_answer = (char*)malloc(sizeof(char)*((query->lsize)*(sizeof(student_t)+100)+1024));
+		data_thread->server_answer = (char*)malloc(sizeof(char)*((query->lsize)*(sizeof(student_t)+100)+32));
 		for (size_t i=0; i<query->lsize; i++){
-			char b[1024];
-			student_to_str(b, &query->students[0]);
-			printf("%s\n", "c'est ici que ça bug");
-			strcat(data_thread->server_answer, b);
+			char student_str_temp[sizeof(student_t)+100];
+			student_to_str(student_str_temp, &query->students[0]);
+			strcat(data_thread->server_answer, student_str_temp);
 		}
-		char n[1024];
-		snprintf(n, 1024,"%li student(s) selected\n", query->lsize);
-		strcat(data_thread->server_answer, n);
+		char amount_str[32];
+		snprintf(amount_str, 32,"%li student(s) selected\n", query->lsize);
+		strcat(data_thread->server_answer, amount_str);
 	}
 	else if (query_number == 0){
-		char* b = NULL;
-		student_to_str(b, &query->students[0]);
-		b = strcat(b,"\n");
-		data_thread->server_answer = strcat(data_thread->server_answer, b);
+		data_thread->server_answer = (char*)malloc(sizeof(char)*(sizeof(student_t)+100));
+		char student_str_temp[sizeof(student_t)+100];
+		student_to_str(student_str_temp, &query->students[0]);
+		strcat(data_thread->server_answer, student_str_temp);
 	}
 	else if (query_number == 2){
-		snprintf(data_thread->server_answer, 1024,"%li student(s) deleted", query->lsize);
+		char amount_str[32];
+		snprintf(amount_str, 32,"%li student(s) deleted", query->lsize);
+		strcat(data_thread->server_answer, amount_str);
 	}
 	else if (query_number == 3){
-		snprintf(data_thread->server_answer, 1024,"%li student(s) deleted", query->lsize);
+		char amount_str[32];
+		snprintf(amount_str, 32,"%li student(s) updated", query->lsize);
+		strcat(data_thread->server_answer, amount_str);
 	}
 	else{perror("wrong query number");}
 }
