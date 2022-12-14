@@ -6,12 +6,16 @@ int SERVER_PORT = 28772;
 void server_output(query_result_t *query, data_storage* data_thread, int query_number){
 	printf("%i\n", query_number);
 	if (query_number==1){
+		data_thread->server_answer = (char*)malloc(sizeof(char)*((query->lsize)*(sizeof(student_t)+100)+1024));
 		for (size_t i=0; i<query->lsize; i++){
 			char b[1024];
 			student_to_str(b, &query->students[0]);
-			data_thread->server_answer = strcat(data_thread->server_answer, b);
+			printf("%s\n", "c'est ici que ça bug");
+			strcat(data_thread->server_answer, b);
 		}
-		snprintf(data_thread->server_answer, 1024,"%li student(s) deleted", query->lsize);
+		char n[1024];
+		snprintf(n, 1024,"%li student(s) selected\n", query->lsize);
+		strcat(data_thread->server_answer, n);
 	}
 	else if (query_number == 0){
 		char* b = NULL;
@@ -94,7 +98,12 @@ void* handle_connection(void* data){
 
       //pthread_mutex_unlock(data_thread.reader_access);
     }
+	printf("SERVER ANSWER : %s\n", data_thread.server_answer);
     write(socket_client, data_thread.server_answer, strlen(data_thread.server_answer));
+	if (data_thread.server_answer){
+		free(data_thread.server_answer);
+		data_thread.server_answer = NULL;
+	}
   }
 
   close(socket_client);
