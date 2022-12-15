@@ -12,17 +12,17 @@ int request_reader(int client_socket){
     char buffer[256];
     int ret;
 	size_t i=0;
-	size_t lenght=0;
+	size_t length=0;
 
     while (fgets(buffer, 256, stdin) != NULL) {
-        lenght = strlen(buffer) + 1;
-        write(client_socket, buffer, lenght);
+        length = strlen(buffer) + 1;
+        write(client_socket, buffer, length);
         printf("Sending...\n");
 
-		read(client_socket, &lenght, sizeof(size_t));
+		read(client_socket, &length, sizeof(size_t));
         i = 0;
-        while (i < lenght) {
-            ret = read(client_socket, buffer, lenght - i);
+        while (i < length) {
+            ret = read(client_socket, buffer, length - i);
             if (ret <= 0) {
                 if (ret < 0){
                     perror("read");

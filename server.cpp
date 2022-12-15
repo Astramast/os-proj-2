@@ -4,7 +4,6 @@ int MAX_USERS = 20;
 int SERVER_PORT = 28772;
 
 void server_output(query_result_t *query, data_storage* data_thread, int query_number){
-	printf("%i\n", query_number);
 	if (query_number==1){
 		data_thread->server_answer = (char*)malloc(sizeof(char)*((query->lsize)*(sizeof(student_t)+100)+32));
 		for (size_t i=0; i<query->lsize; i++){
@@ -104,6 +103,8 @@ void* handle_connection(void* data){
       //pthread_mutex_unlock(data_thread.reader_access);
     }
 	printf("SERVER ANSWER : %s\n", data_thread.server_answer);
+	size_t serv_answer_len = strlen(data_thread.server_answer); 
+	write(socket_client, &serv_answer_len, sizeof(size_t));
     write(socket_client, data_thread.server_answer, strlen(data_thread.server_answer));
 	if (data_thread.server_answer){
 		free(data_thread.server_answer);
