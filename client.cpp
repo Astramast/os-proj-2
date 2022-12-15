@@ -9,14 +9,17 @@
 #include <pthread.h>
 
 int request_reader(int client_socket){
-    char buffer[1024];
-    int lenght, i, ret;
+    char buffer[256];
+    int ret;
+	size_t i=0;
+	size_t lenght=0;
 
-    while (fgets(buffer, 1024, stdin) != NULL) {
+    while (fgets(buffer, 256, stdin) != NULL) {
         lenght = strlen(buffer) + 1;
-        write(client_socket, buffer, strlen(buffer) + 1);
+        write(client_socket, buffer, lenght);
         printf("Sending...\n");
 
+		read(client_socket, &lenght, sizeof(size_t));
         i = 0;
         while (i < lenght) {
             ret = read(client_socket, buffer, lenght - i);
@@ -40,7 +43,7 @@ int request_reader(int client_socket){
     return 0;
 }
 
-void client_handler(){
+void client_handler(char* ip){
     
     int client_socket = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -49,13 +52,13 @@ void client_handler(){
     client_adrr.sin_port = htons(28772);
 
     // Conversion de string vers IPv4 ou IPv6 en binaire
-    inet_pton(AF_INET, "127.0.0.1", &client_adrr.sin_addr);
+    inet_pton(AF_INET, ip, &client_adrr.sin_addr);
     connect(client_socket, (const struct sockaddr *)&client_adrr, sizeof(client_adrr));
-    printf("Connected.\nEnter your query: \n");
+    printf("%s\n", "Connected.\nEnter your query: ");
     request_reader(client_socket);
 }
 
-int main(){
-    client_handler();
+int main(int argc, char* argv[]){
+    client_handler(argv[1]);
     return 0;
 }
