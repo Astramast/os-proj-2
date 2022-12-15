@@ -10,6 +10,7 @@
 
 int request_reader(int client_socket){
     char buffer[256];
+	char* answer = NULL;
     int ret;
 	size_t i=0;
 	size_t length=0;
@@ -20,9 +21,10 @@ int request_reader(int client_socket){
         printf("Sending...\n");
 
 		read(client_socket, &length, sizeof(size_t));
+		answer = (char*)malloc(length);
         i = 0;
         while (i < length) {
-            ret = read(client_socket, buffer, length - i);
+            ret = read(client_socket, answer, length - i);
             if (ret <= 0) {
                 if (ret < 0){
                     perror("read");
@@ -36,7 +38,9 @@ int request_reader(int client_socket){
             i += ret;
         }
 
-        printf("Received: %s\n", buffer);
+        printf("Received: %s\n", answer);
+		free(answer);
+		answer = NULL;
     }
     close(client_socket);
     pthread_exit(0);

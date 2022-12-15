@@ -8,7 +8,7 @@ void server_output(query_result_t *query, data_storage* data_thread, int query_n
 		data_thread->server_answer = (char*)malloc(sizeof(char)*((query->lsize)*(sizeof(student_t)+100)+32));
 		for (size_t i=0; i<query->lsize; i++){
 			char student_str_temp[sizeof(student_t)+100];
-			student_to_str(student_str_temp, &query->students[0]);
+			student_to_str(student_str_temp, &query->students[i]);
 			strcat(data_thread->server_answer, student_str_temp);
 		}
 		char amount_str[32];
@@ -103,9 +103,10 @@ void* handle_connection(void* data){
       //pthread_mutex_unlock(data_thread.reader_access);
     }
 	printf("SERVER ANSWER : %s\n", data_thread.server_answer);
-	size_t serv_answer_len = strlen(data_thread.server_answer); 
+	size_t serv_answer_len = strlen(data_thread.server_answer)+1; // for \0 char
+	printf("%li\n", serv_answer_len); 
 	write(socket_client, &serv_answer_len, sizeof(size_t));
-    write(socket_client, data_thread.server_answer, strlen(data_thread.server_answer));
+    write(socket_client, data_thread.server_answer, serv_answer_len);
 	if (data_thread.server_answer){
 		free(data_thread.server_answer);
 		data_thread.server_answer = NULL;
