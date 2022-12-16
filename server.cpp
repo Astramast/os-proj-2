@@ -5,10 +5,12 @@ int SERVER_PORT = 28772;
 
 void server_output(query_result_t *query, data_storage* data_thread, int query_number){
 	if (strlen(data_thread->error_msg) != 0){
+    
 		data_thread->server_answer = (char*)malloc(sizeof(data_thread->error_msg));
 		strcpy(data_thread->server_answer, data_thread->error_msg);
 		data_thread->error_msg[0] = '\0';
 	}
+  
 	else if (query_number == SELECT){
     data_thread->server_answer = (char*)malloc(sizeof(char)*((query->lsize)*(sizeof(student_t)+100)+32));
 
