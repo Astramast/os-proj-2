@@ -89,7 +89,6 @@ vector<student_t*> select(string field , string value, database_t* data_base, qu
 	}
 	else{
 		query->status=QUERY_FAILURE;
-		printf("The data that you want to select doesn't exist.\n");
 	}
 	return sort_student_list;
 }
@@ -146,7 +145,6 @@ void delete_function(string field,string value , database_t* data_base, query_re
 	}
 	else{
 		query->status=QUERY_FAILURE;
-		printf("The data that you want to delete doesn't exist.\n");
 	}
 }
 
@@ -192,7 +190,6 @@ void update(string filter_field ,string value ,string modified_field ,char* new_
 	}
 	else{
 		query->status=QUERY_FAILURE;
-		printf("The data that you want to change doesn't exist.\n");
 	}
 }
 

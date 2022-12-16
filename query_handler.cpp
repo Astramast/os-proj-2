@@ -72,7 +72,7 @@ bool is_valid_selectors(data_storage* data){
 		}
 	}
 
-	else if((strcmp_fname or strcmp_lname or strcmp_section) == 0){
+	else if(strcmp_fname == 0 or strcmp_lname == 0 or strcmp_section == 0){
 
 		while(is_valid == true and index < strlen(data->value)){
 			if(isdigit(data->value[index] == true)){
@@ -92,6 +92,11 @@ bool is_valid_selectors(data_storage* data){
 			is_valid = false;
 			strcpy(data->error_msg, "Error: birthdate is not complete\n");
     	}
+	}
+
+	else{
+		strcpy(data->error_msg, "Error: The filter that you want doesn't exist.\n");
+		is_valid = false;
 	}
 
 	return is_valid;
@@ -118,7 +123,7 @@ bool is_valid_update(data_storage* data){
 			}
 		}
 
-		else if((strcmp_fname or strcmp_lname or strcmp_section) == 0){
+		else if(strcmp_fname == 0 or strcmp_lname == 0 or strcmp_section == 0){
 
 			while(is_valid == true and index < strlen(data->update_value)){
 				if(isdigit(data->update_value[index] == true)){
@@ -138,6 +143,11 @@ bool is_valid_update(data_storage* data){
 				is_valid = false;
 				strcpy(data->error_msg, "Error: birthdate is not complete\n");
 			}
+		}
+
+		else{
+			strcpy(data->error_msg,"Error: The data that you want to change doesn't exist.\n");
+			is_valid = false; 
 		}
 	}
 
