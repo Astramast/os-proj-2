@@ -12,6 +12,11 @@
 #include <sys/wait.h>
 #include <sys/mman.h>
 
+const int INSERT = 0;
+const int SELECT = 1;
+const int DELETE = 2;
+const int UPDATE = 3;
+
 struct data_storage{
 
 	char fname[64]="";
@@ -30,9 +35,11 @@ struct data_storage{
 	pthread_mutex_t* new_query, *write_access, *reader_access;
 };
 
-void sigint_handler(int received);
+bool is_valid_insert(student_t* student, data_storage* data);
 
-void sigusr1_handler(int received);
+bool is_valid_selectors(data_storage* data);
+
+bool is_valid_update(data_storage* data);
 
 int identify_query(char* query);
 /**

@@ -147,7 +147,6 @@ void delete_function(string field,string value , database_t* data_base, query_re
 
 			if (delete_student){
 				db_remove(data_base, i); //Here lsize-- is executed
-				printf("Student deleted with success\n");
 				i--; //Here we do that because the student index, i is replaced by the following student and we need to verify it too.
 			}
 		}

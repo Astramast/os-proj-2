@@ -4,35 +4,46 @@ int MAX_USERS = 20;
 int SERVER_PORT = 28772;
 
 void server_output(query_result_t *query, data_storage* data_thread, int query_number){
-	if (query_number==1){
-		data_thread->server_answer = (char*)malloc(sizeof(char)*((query->lsize)*(sizeof(student_t)+100)+32));
+
+	if (query_number == SELECT){
+    data_thread->server_answer = (char*)malloc(sizeof(char)*((query->lsize)*(sizeof(student_t)+100)+32));
+
 		for (size_t i=0; i<query->lsize; i++){
+
 			char student_str_temp[sizeof(student_t)+100];
 			student_to_str(student_str_temp, &query->students[i]);
 			strcat(data_thread->server_answer, student_str_temp);
 		}
+
 		char amount_str[32];
 		snprintf(amount_str, 32,"%li student(s) selected\n", query->lsize);
 		strcat(data_thread->server_answer, amount_str);
 	}
-	else if (query_number == 0){
+
+	else if (query_number == INSERT){
 		data_thread->server_answer = (char*)malloc(sizeof(char)*(sizeof(student_t)+100));
+
 		char student_str_temp[sizeof(student_t)+100];
 		student_to_str(student_str_temp, &query->students[0]);
 		strcat(data_thread->server_answer, student_str_temp);
 	}
-	else if (query_number == 2){
+
+	else if (query_number == DELETE){
 		data_thread->server_answer = (char*)malloc(sizeof(char)*32);
+
 		char amount_str[32];
 		snprintf(amount_str, 32,"%li student(s) deleted", query->lsize);
 		strcat(data_thread->server_answer, amount_str);
 	}
-	else if (query_number == 3){
+
+	else if (query_number == UPDATE){
 		data_thread->server_answer = (char*)malloc(sizeof(char)*32);
+
 		char amount_str[32];
 		snprintf(amount_str, 32,"%li student(s) updated", query->lsize);
 		strcat(data_thread->server_answer, amount_str);
 	}
+
 	else{
 		data_thread->server_answer = (char*)malloc(sizeof(data_thread->error_msg));
 		strcpy(data_thread->server_answer, data_thread->error_msg);
@@ -51,10 +62,11 @@ void execute_request(char user_query[1024],int query_number, data_storage* data_
   execute_query(query_number, data_thread, &query);
   query.query[strcspn(query.query, "\n")]=0;
   
-
   struct timespec now;
   clock_gettime(CLOCK_REALTIME, &now);
   query.end_ns = now.tv_nsec + 1e9 * now.tv_sec;
+  printf("%s\n", "ca bug plus");
+  
   server_output(&query, data_thread, query_number);
   log_query(&query);
 }
@@ -95,7 +107,7 @@ void* handle_connection(void* data){
       //pthread_mutex_unlock(data_thread.new_query);
       //pthread_mutex_unlock(data_thread.reader_access);
       execute_request(user_query, query_number, &data_thread);
-	  printf("%s\n", "executed request");
+	    printf("%s\n", "executed request");
       //pthread_mutex_lock(data_thread.reader_access);
       readers_number--;
 
@@ -105,14 +117,15 @@ void* handle_connection(void* data){
 
       //pthread_mutex_unlock(data_thread.reader_access);
     }
-	size_t serv_answer_len = strlen(data_thread.server_answer)+1; // +1 for \0 char
-	write(socket_client, &serv_answer_len, sizeof(size_t));
+    
+    size_t serv_answer_len = strlen(data_thread.server_answer)+1; // +1 for \0 char
+    write(socket_client, &serv_answer_len, sizeof(size_t));
     write(socket_client, data_thread.server_answer, serv_answer_len);
 
-	if (data_thread.server_answer){
-		free(data_thread.server_answer);
-		data_thread.server_answer = NULL;
-	}
+    if (data_thread.server_answer){
+      free(data_thread.server_answer);
+      data_thread.server_answer = NULL;
+	  }
   }
 
   close(socket_client);

@@ -64,6 +64,11 @@ void client_handler(char* ip){
 }
 
 int main(int argc, char* argv[]){
+    if (argc == 1){
+		printf("%s\n", "No IP given. default ip is generally 127.0.0.1. Usage : ./client [ip]");
+		exit(-1);
+	}
+
     client_handler(argv[1]);
     return 0;
 }
