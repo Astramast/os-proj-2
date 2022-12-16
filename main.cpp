@@ -8,8 +8,8 @@ Kevin Issa Matricule 514550
 
 int main(int argc, char const *argv[]){
     printf("STARTING\n");
-	if (strcmp(argv[1], "")==0){
-		printf("No file given. Usage : ./smalldb <db_file_path>");
+	if (argc==1){
+		printf("%s\n", "No file given. Usage : ./smalldb <db_file_path>");
 		exit(-1);
 	}
 	const char *db_path = argv[1];
