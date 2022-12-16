@@ -2,16 +2,9 @@
 #include <time.h>
 #include <iostream>
 #include <stdio.h>
-#include <vector>
 #include <cstring>
-#include "db.h"
 using std::stoul;
-using std::string;
-using std::vector;
-using std::cout;
-using std::endl;
 using std::strcpy;
-using std::invalid_argument;
 
 void insert(student_t* student, database_t *data_base, query_result_t *query){
 	bool flag = true;
@@ -136,7 +129,7 @@ void delete_function(string field,string value , database_t* data_base, query_re
 			}
 
 			else if(field =="birthdate"){
-				char* student_bd_temp=nullptr;
+				char* student_bd_temp = nullptr;
 				tm* student_tm = &data_base->data[i].birthdate;
 				strftime(student_bd_temp, 10, "%d/%m/%Y", student_tm);
 				if(student_bd_temp == value){

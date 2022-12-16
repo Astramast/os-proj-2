@@ -35,11 +35,11 @@ struct data_storage{
 	pthread_mutex_t* new_query, *write_access, *reader_access;
 };
 
-bool is_valid_insert(student_t* student, data_storage* data);
+void is_valid_insert(student_t* student, data_storage* data);
 
 bool is_valid_selectors(data_storage* data);
 
-bool is_valid_update(data_storage* data);
+void is_valid_update(data_storage* data);
 
 int identify_query(char* query);
 /**
