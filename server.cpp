@@ -4,8 +4,12 @@ int MAX_USERS = 20;
 int SERVER_PORT = 28772;
 
 void server_output(query_result_t *query, data_storage* data_thread, int query_number){
-
-	if (query_number == SELECT){
+	if (strlen(data_thread->error_msg) != 0){
+		data_thread->server_answer = (char*)malloc(sizeof(data_thread->error_msg));
+		strcpy(data_thread->server_answer, data_thread->error_msg);
+		data_thread->error_msg = "";
+	}
+	else if (query_number == SELECT){
     data_thread->server_answer = (char*)malloc(sizeof(char)*((query->lsize)*(sizeof(student_t)+100)+32));
 
 		for (size_t i=0; i<query->lsize; i++){
@@ -42,11 +46,6 @@ void server_output(query_result_t *query, data_storage* data_thread, int query_n
 		char amount_str[32];
 		snprintf(amount_str, 32,"%li student(s) updated", query->lsize);
 		strcat(data_thread->server_answer, amount_str);
-	}
-
-	else{
-		data_thread->server_answer = (char*)malloc(sizeof(data_thread->error_msg));
-		strcpy(data_thread->server_answer, data_thread->error_msg);
 	}
 }
 
