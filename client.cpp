@@ -38,9 +38,10 @@ int request_reader(int client_socket){
             i += ret;
         }
 
-        printf("Received: %s\n", answer);
+        printf("Received: %s", answer);
 		free(answer);
 		answer = NULL;
+		printf("%s", "Connected.\nEnter your query: ");
     }
     close(client_socket);
     pthread_exit(0);
@@ -58,7 +59,7 @@ void client_handler(char* ip){
     // Conversion de string vers IPv4 ou IPv6 en binaire
     inet_pton(AF_INET, ip, &client_adrr.sin_addr);
     connect(client_socket, (const struct sockaddr *)&client_adrr, sizeof(client_adrr));
-    printf("%s\n", "Connected.\nEnter your query: ");
+	printf("%s", "Connected.\nEnter your query: ");
     request_reader(client_socket);
 }
 

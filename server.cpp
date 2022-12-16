@@ -33,7 +33,10 @@ void server_output(query_result_t *query, data_storage* data_thread, int query_n
 		snprintf(amount_str, 32,"%li student(s) updated", query->lsize);
 		strcat(data_thread->server_answer, amount_str);
 	}
-	else{perror("wrong query number");}
+	else{
+		data_thread->server_answer = (char*)malloc(sizeof(data_thread->error_msg));
+		strcpy(data_thread->server_answer, data_thread->error_msg);
+	}
 }
 
 
@@ -102,11 +105,10 @@ void* handle_connection(void* data){
 
       //pthread_mutex_unlock(data_thread.reader_access);
     }
-	printf("SERVER ANSWER : %s\n", data_thread.server_answer);
-	size_t serv_answer_len = strlen(data_thread.server_answer)+1; // for \0 char
-	printf("%li\n", serv_answer_len); 
+	size_t serv_answer_len = strlen(data_thread.server_answer)+1; // +1 for \0 char
 	write(socket_client, &serv_answer_len, sizeof(size_t));
     write(socket_client, data_thread.server_answer, serv_answer_len);
+
 	if (data_thread.server_answer){
 		free(data_thread.server_answer);
 		data_thread.server_answer = NULL;
