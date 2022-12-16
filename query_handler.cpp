@@ -20,7 +20,7 @@ int identify_query(char* query){
 	return -1;
 }
 
-void is_valid_insert(student_t* student, data_storage* data){
+bool is_valid_insert(student_t* student, data_storage* data){
 
 	bool is_valid = true;
 	int index = 0;
@@ -49,6 +49,7 @@ void is_valid_insert(student_t* student, data_storage* data){
 	}
 
 	if(is_valid == false){strcpy(data->error_msg, "Error: wrong argument to insert(numbers are not allowed outside of id and birthdate)\n");}
+	return is_valid;
 }
 
 bool is_valid_selectors(data_storage* data){
@@ -85,21 +86,62 @@ bool is_valid_selectors(data_storage* data){
 	else if(strcmp(data->field, "birthdate") == 0){
 
 		char student_bd_temp[256];
-		tm* student_tm = nullptr;
-		strftime(student_bd_temp, 10, "%d/%m/%Y", student_tm);
+		strcpy(student_bd_temp, data->value);
 
-		if (strptime(student_bd_temp, "%d/%m/%Y", student_tm) == NULL) {//transforme un string en date
+		if (strptime(student_bd_temp, "%d/%m/%Y", &data->birthdate) == NULL) {//transforme un string en date
 			is_valid = false;
 			strcpy(data->error_msg, "Error: birthdate is not complete\n");
     	}
 	}
+
 	return is_valid;
 }
 
-void is_valid_update(data_storage* data){
+bool is_valid_update(data_storage* data){
+	bool is_valid = true;
 	if(is_valid_selectors(data)){
 
+		int index=0;
+		int strcmp_id=strcmp(data->field_to_update, "id");
+		int strcmp_fname=strcmp(data->field_to_update, "fname");
+		int strcmp_lname=strcmp(data->field_to_update, "lname");
+		int strcmp_section=strcmp(data->field_to_update, "section");
+
+		if(strcmp_id == 0){
+
+			while(is_valid == true and index < strlen(data->update_value)){
+				if(isalpha(data->update_value[index]) == true){
+					is_valid = false;
+					strcpy(data->error_msg, "Error only numbers are allowed for id\n");
+				}
+				index++;
+			}
+		}
+
+		else if((strcmp_fname or strcmp_lname or strcmp_section) == 0){
+
+			while(is_valid == true and index < strlen(data->update_value)){
+				if(isdigit(data->update_value[index] == true)){
+					is_valid = false;
+					strcpy(data->error_msg, "Error: numbers are not allowed for fname, lname and section\n");
+				}
+				index++;
+			}
+		}
+
+		else if(strcmp(data->field, "birthdate") == 0){
+
+			char student_bd_temp[256];
+			strcpy(student_bd_temp, data->update_value);
+
+			if (strptime(student_bd_temp, "%d/%m/%Y", &data->birthdate) == NULL) {//transforme un string en date
+				is_valid = false;
+				strcpy(data->error_msg, "Error: birthdate is not complete\n");
+			}
+		}
 	}
+
+	return is_valid;	
 }
 
 void execute_query(int query_number, data_storage* data, query_result_t* query){
@@ -118,8 +160,8 @@ void execute_query(int query_number, data_storage* data, query_result_t* query){
 			printf("query parsing: %s, fname: %s, lname: %s, id: %i, section: %s, birthdate: %i/%i/%i\n",
 			data->query_parsing, student.fname,student.lname,student.id,student.section,
 			student.birthdate.tm_year+1900, student.birthdate.tm_mon+1, student.birthdate.tm_mday);
-
-			insert(&student, data->db, query);
+			if(is_valid_insert(&student, data))
+				insert(&student, data->db, query);
 		}
 		else {everything_fine = false;}
 	}
@@ -127,7 +169,8 @@ void execute_query(int query_number, data_storage* data, query_result_t* query){
 	else if (query_number == SELECT){
 		if (parse_selectors(data->query_parsing, data->field, data->value)){
 			printf("query_parsing: %s, field: %s, value: %s\n",data->query_parsing,data->field, data->value);
-			select(data->field, data->value, data->db, query);
+			if(is_valid_selectors(data))
+				select(data->field, data->value, data->db, query);
 		}
 		else{everything_fine = false;}
 	}
@@ -135,7 +178,8 @@ void execute_query(int query_number, data_storage* data, query_result_t* query){
 	else if (query_number == DELETE){
 
 		if (parse_selectors(data->query_parsing, data->field, data->value)){
-			delete_function(data->field, data->value, data->db, query);
+			if(is_valid_selectors(data))
+				delete_function(data->field, data->value, data->db, query);
 		}
 		else{everything_fine = false;}
 	}
@@ -145,7 +189,8 @@ void execute_query(int query_number, data_storage* data, query_result_t* query){
 		if (parse_update(data->query_parsing, data->field, data->value, data->field_to_update, data->update_value)){
 			printf("field: %s, value: %s, field to update: %s, update value: %s\n", 
 			data->field, data->value, data->field_to_update, data->update_value);
-			update(data->field, data->value, data->field_to_update, data->update_value, data->db, query);
+			if(is_valid_update(data))
+				update(data->field, data->value, data->field_to_update, data->update_value, data->db, query);
 		}
 		else{everything_fine = false;}
 	}

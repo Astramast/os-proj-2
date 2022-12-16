@@ -26,6 +26,7 @@ struct data_storage{
 	char value[256]="";
 	char field_to_update[256]="";
 	char update_value[256]="";
+	struct tm birthdate;
 	unsigned id;
 	char query_parsing[256]="";
 	char error_msg[64]="";
@@ -35,11 +36,11 @@ struct data_storage{
 	pthread_mutex_t* new_query, *write_access, *reader_access;
 };
 
-void is_valid_insert(student_t* student, data_storage* data);
+bool is_valid_insert(student_t* student, data_storage* data);
 
 bool is_valid_selectors(data_storage* data);
 
-void is_valid_update(data_storage* data);
+bool is_valid_update(data_storage* data);
 
 int identify_query(char* query);
 /**
