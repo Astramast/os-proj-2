@@ -20,35 +20,63 @@ int identify_query(char* query){
 	return -1;
 }
 
+bool is_valid_string(bool is_valid, size_t index, char str[256], data_storage* data){
+
+	while(is_valid == true and index < strlen(str)){
+		
+		if(isdigit(str[index]) == true){
+			is_valid = false;
+			strcpy(data->error_msg, "Error: numbers are not allowed for fname, lname and section\n");
+		}
+		index++;
+	}
+
+return is_valid;
+}
+
+bool is_valid_int(bool is_valid, size_t index, char str[256], data_storage* data){
+
+	while(is_valid == true and index < strlen(str)){
+
+		if(isalpha(str[index]) == true){
+			is_valid = false;
+			strcpy(data->error_msg, "Error: only numbers are allowed for id\n");
+		}
+		index++;
+	}
+
+return is_valid;
+}
+
+bool is_valid_birthdate(bool is_valid, char str[256], data_storage* data){
+
+	char student_bd_temp[256];
+	strcpy(student_bd_temp, str);
+
+	if (strptime(student_bd_temp, "%d/%m/%Y", &data->birthdate) == NULL) {//transforme un string en date
+		is_valid = false;
+		strcpy(data->error_msg, "Error: birthdate is not complete or wrong\n");
+	}
+
+return is_valid;
+}
+
 bool is_valid_insert(student_t* student, data_storage* data){
 
 	bool is_valid = true;
 	size_t index = 0;
 
-	while (is_valid == true and index < strlen(student->fname)){
-		if(isdigit(student->fname[index]) == true){
-			is_valid = false;
-		}
-		index++;
+	is_valid = is_valid_string(is_valid, index, student->fname, data);
+
+	if(is_valid == true){
+		is_valid = is_valid_string(is_valid, index, student->lname, data); 
 	}
 
-	index=0;
-	while (is_valid == true and index < strlen(student->lname)){
-		if(isdigit(student->lname[index]) == true){
-			is_valid = false;
-		}
-		index++;
+	if(is_valid == true){
+		is_valid = is_valid_string(is_valid, index, student->section, data);
+
 	}
 
-	index=0;
-	while (is_valid == true and index < strlen(student->section)){
-		if(isdigit(student->section[index]) == true){
-			is_valid = false;
-		}
-		index++;
-	}
-
-	if(is_valid == false){strcpy(data->error_msg, "Error: wrong argument to insert(numbers are not allowed outside of id and birthdate)\n");}
 	return is_valid;
 }
 
@@ -62,36 +90,18 @@ bool is_valid_selectors(data_storage* data){
 	int strcmp_section = strcmp(data->field, "section");
 
 	if(strcmp_id == 0){
-		while(is_valid == true and index < strlen(data->value)){
-			if(isalpha(data->value[index]) == true){
-				is_valid = false;
-				strcpy(data->error_msg, "Error: only numbers are allowed for id\n");
-			}
-			index++;
-		}
+
+		is_valid = is_valid_int(is_valid, index, data->value, data);
 	}
 
 	else if(strcmp_fname == 0 or strcmp_lname == 0 or strcmp_section == 0){
-
-		while(is_valid == true and index < strlen(data->value)){
-			
-			if(isdigit(data->value[index]) == true){
-				is_valid = false;
-				strcpy(data->error_msg, "Error: numbers are not allowed for fname, lname and section\n");
-			}
-			index++;
-		}
+		
+		is_valid = is_valid_string(is_valid, index, data->value, data);
 	}
 
 	else if(strcmp(data->field, "birthdate") == 0){
 
-		char student_bd_temp[256];
-		strcpy(student_bd_temp, data->value);
-
-		if (strptime(student_bd_temp, "%d/%m/%Y", &data->birthdate) == NULL) {//transforme un string en date
-			is_valid = false;
-			strcpy(data->error_msg, "Error: birthdate is not complete\n");
-    	}
+		is_valid = is_valid_birthdate(is_valid, data->value, data);
 	}
 
 	else{
@@ -114,38 +124,21 @@ bool is_valid_update(data_storage* data){
 
 		if(strcmp_id == 0){
 
-			while(is_valid == true and index < strlen(data->update_value)){
-				if(isalpha(data->update_value[index]) == true){
-					is_valid = false;
-					strcpy(data->error_msg, "Error only numbers are allowed for id\n");
-				}
-				index++;
-			}
+			is_valid = is_valid_int(is_valid, index, data->update_value, data);
 		}
 
 		else if(strcmp_fname == 0 or strcmp_lname == 0 or strcmp_section == 0){
 
-			while(is_valid == true and index < strlen(data->update_value)){
-				if(isdigit(data->update_value[index]) == true){
-					is_valid = false;
-					strcpy(data->error_msg, "Error: numbers are not allowed for fname, lname and section\n");
-				}
-				index++;
-			}
+			is_valid = is_valid_string(is_valid, index, data->update_value, data);
 		}
 
 		else if(strcmp(data->field_to_update, "birthdate") == 0){
-
-			char student_bd_temp[256];
-			strcpy(student_bd_temp, data->update_value);
 			
-			if (strptime(student_bd_temp, "%d/%m/%Y", &data->birthdate) == NULL) {//transforme un string en date
-				is_valid = false;
-				strcpy(data->error_msg, "Error: birthdate is not complete\n");
-			}
+			is_valid= is_valid_birthdate(is_valid, data->update_value, data);
 		}
 
 		else{
+
 			strcpy(data->error_msg,"Error: The data that you want to change doesn't exist.\n");
 			is_valid = false; 
 		}
@@ -159,7 +152,7 @@ void execute_query(int query_number, data_storage* data, query_result_t* query){
 	bool everything_fine=true;
 	struct tm birthdate;
 	if (query_number == INSERT){
-
+		//check if the argument to parse are correct and create a student if it is
 		if (parse_insert(data->query_parsing, data->fname, data->lname, &data->id, data->section, &birthdate)){
 			student_t student;
 			student.id = data->id;

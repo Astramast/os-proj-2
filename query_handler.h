@@ -35,6 +35,12 @@ struct data_storage{
 	int socket_data;
 };
 
+bool is_valid_string(bool is_valid, size_t index, char str[256],data_storage* data);
+
+bool is_valid_int(bool is_valid, size_t index, char str[256], data_storage* data);
+
+bool is_valid_birthdate(bool is_valid, char str[256], data_storage* data);
+
 bool is_valid_insert(student_t* student, data_storage* data);
 
 bool is_valid_selectors(data_storage* data);
