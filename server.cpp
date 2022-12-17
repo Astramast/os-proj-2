@@ -158,13 +158,13 @@ void* handle_connection(void* data){
 void client_receiver(int* socket_server, database_t* db, const char* save_path){
 
 	int client_socket = 0;
-	struct sigaction sigint_a;
-	sigint_a.sa_handler = sigint_handler;
-	sigemptyset(&sigint_a.sa_mask);
-	sigint_a.sa_flags = 0;
-	sigaction(SIGINT, &sigint_a, NULL);
-	sigint_a.sa_handler = sigusr1_handler;
-	sigaction(SIGUSR1, &sigint_a, NULL);
+	struct sigaction sigs_a;
+	sigs_a.sa_handler = sigint_handler;
+	sigemptyset(&sigs_a.sa_mask);
+	sigs_a.sa_flags = 0;
+	sigaction(SIGINT, &sigs_a, NULL);
+	sigs_a.sa_handler = sigusr1_handler;
+	sigaction(SIGUSR1, &sigs_a, NULL);
 
   while(SIGINT_FLAG == false){
 
