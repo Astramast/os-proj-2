@@ -24,7 +24,7 @@ bool is_valid_string(bool is_valid, size_t index, char str[256], data_storage* d
 
 	while(is_valid == true and index < strlen(str)){
 		
-		if(isdigit(str[index]) == true){
+		if(isdigit(str[index])){
 			is_valid = false;
 			strcpy(data->error_msg, "Error: numbers are not allowed for fname, lname and section\n");
 		}
@@ -37,8 +37,7 @@ return is_valid;
 bool is_valid_int(bool is_valid, size_t index, char str[256], data_storage* data){
 
 	while(is_valid == true and index < strlen(str)){
-
-		if(isalpha(str[index]) == true){
+		if(isalpha(str[index])){
 			is_valid = false;
 			strcpy(data->error_msg, "Error: only numbers are allowed for id\n");
 		}
