@@ -15,13 +15,13 @@ int request_reader(int client_socket){
 	size_t i=0;
 	size_t length=0;
 
-    while (fgets(buffer, 256, stdin) != NULL) {
+    while (fgets(buffer, 256, stdin) != NULL) {//the socket is waiting that the user send something on stdin
         length = strlen(buffer) + 1;
-        write(client_socket, buffer, length);
+        write(client_socket, buffer, length);//send the query to the server
         printf("Sending...\n");
 
-		read(client_socket, &length, sizeof(size_t));
-		answer = (char*)malloc(length);
+		read(client_socket, &length, sizeof(size_t));//read the server's response
+		answer = (char*)malloc(length);//allocate the char*
         i = 0;
         while (i < length) {
             ret = read(client_socket, answer, length - i);

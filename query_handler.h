@@ -36,22 +36,48 @@ struct data_storage{
 };
 
 bool is_valid_string(bool is_valid, size_t index, char str[256],data_storage* data);
+/**
+ * @brief: Check if a string contains only chars
+ * 
+ * @param is_valid: boolean to check if the string is valid
+ * @param str: the string to check
+ */
 
 bool is_valid_int(bool is_valid, size_t index, char str[256], data_storage* data);
+/**
+ * @brief: Check if a string contains only numbers
+ */
 
 bool is_valid_birthdate(bool is_valid, char str[256], data_storage* data);
+/**
+ * 
+ * @brief: check if a birthdate is complete and correct
+ */
 
 bool is_valid_insert(student_t* student, data_storage* data);
+/**
+ * @brief: check if the insert query is well writen(no syntax errors)
+ */
 
 bool is_valid_selectors(data_storage* data);
+/**
+ * @brief: check if the select or delete query is well writen(no syntax errors)
+ * 
+ */
 
 bool is_valid_update(data_storage* data);
+/**
+ * @brief: check if the update query is well writen by calling select and then doing the same work 
+ * for the next string(no syntax errors)
+ * 
+ */
 
 int identify_query(char* query);
 /**
  * @brief: identify wich query is received
  * 
  */
+
 void execute_query(int query_number, data_storage* data, query_result_t* query);
 /**
  * @brief: parse and execute the query

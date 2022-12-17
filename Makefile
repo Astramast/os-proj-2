@@ -1,5 +1,5 @@
 
-FLAGS=-std=c++17 -Wall -Werror -Wpedantic -D_GNU_SOURCE
+FLAGS=-std=c++17 -Wall -Wextra -Wpedantic -D_GNU_SOURCE -Werror=all
 COMPILER=g++
 
 all: smalldb client

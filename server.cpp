@@ -14,6 +14,7 @@ void sigusr1_handler(int signal_num){
 	SAVE_FLAG = true;
 }
 
+//initiate all the variables for the mutex
 pthread_mutex_t new_access = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t write_access = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t reader_registration = PTHREAD_MUTEX_INITIALIZER;
@@ -31,7 +32,7 @@ void server_output(query_result_t *query, data_storage* data_thread, int query_n
     data_thread->server_answer = (char*)malloc(sizeof(char)*((query->lsize)*(sizeof(student_t)+100)+32));
 
 		for (size_t i=0; i<query->lsize; i++){
-
+      //create a big string by concatenating all the student found by select that will be send to the client
 			char student_str_temp[sizeof(student_t)+100];
 			student_to_str(student_str_temp, &query->students[i]);
 			strcat(data_thread->server_answer, student_str_temp);
@@ -44,7 +45,7 @@ void server_output(query_result_t *query, data_storage* data_thread, int query_n
 
 	else if (query_number == INSERT){
 		data_thread->server_answer = (char*)malloc(sizeof(char)*(sizeof(student_t)+100));
-
+    //send the student inserted to the client
 		char student_str_temp[sizeof(student_t)+100];
 		student_to_str(student_str_temp, &query->students[0]);
 		strcat(data_thread->server_answer, student_str_temp);
