@@ -60,11 +60,9 @@ bool is_valid_selectors(data_storage* data){
 	int strcmp_fname = strcmp(data->field, "fname");
 	int strcmp_lname = strcmp(data->field, "lname");
 	int strcmp_section = strcmp(data->field, "section");
-
 	if(strcmp_id == 0){
 		while(is_valid == true and index < strlen(data->value)){
 			if(isalpha(data->value[index]) == true){
-				printf("%i\n",isalpha(data->value[index]));
 				is_valid = false;
 				strcpy(data->error_msg, "Error: only numbers are allowed for id\n");
 			}
@@ -99,13 +97,13 @@ bool is_valid_selectors(data_storage* data){
 		strcpy(data->error_msg, "Error: The filter that you want doesn't exist.\n");
 		is_valid = false;
 	}
-
 	return is_valid;
 }
 
 bool is_valid_update(data_storage* data){
-	bool is_valid = true;
-	if(is_valid_selectors(data)){
+
+	if(is_valid_selectors(data) == true){
+		bool is_valid = true;
 
 		size_t index=0;
 		int strcmp_id = strcmp(data->field_to_update, "id");
@@ -150,9 +148,10 @@ bool is_valid_update(data_storage* data){
 			strcpy(data->error_msg,"Error: The data that you want to change doesn't exist.\n");
 			is_valid = false; 
 		}
+		
+		return is_valid;	
 	}
-
-	return is_valid;	
+	else{ return false; }
 }
 
 void execute_query(int query_number, data_storage* data, query_result_t* query){
@@ -168,7 +167,7 @@ void execute_query(int query_number, data_storage* data, query_result_t* query){
 			strcpy(student.section, data->section);
 			student.birthdate=birthdate;
 
-			if(is_valid_insert(&student, data))
+			if(is_valid_insert(&student, data) == true)
 				insert(&student, data->db, query);
 		}
 		else {everything_fine = false;}
@@ -176,7 +175,7 @@ void execute_query(int query_number, data_storage* data, query_result_t* query){
 
 	else if (query_number == SELECT){
 		if (parse_selectors(data->query_parsing, data->field, data->value)){
-			if(is_valid_selectors(data))
+			if(is_valid_selectors(data) == true)
 				select(data->field, data->value, data->db, query);
 		}
 		else{everything_fine = false;}
@@ -185,7 +184,7 @@ void execute_query(int query_number, data_storage* data, query_result_t* query){
 	else if (query_number == DELETE){
 
 		if (parse_selectors(data->query_parsing, data->field, data->value)){
-			if(is_valid_selectors(data))
+			if(is_valid_selectors(data) == true)
 				delete_function(data->field, data->value, data->db, query);
 		}
 		else{everything_fine = false;}
@@ -195,7 +194,7 @@ void execute_query(int query_number, data_storage* data, query_result_t* query){
 
 		if (parse_update(data->query_parsing, data->field, data->value, data->field_to_update, data->update_value)){
 			
-			if(is_valid_update(data))
+			if(is_valid_update(data) == true)
 				update(data->field, data->value, data->field_to_update, data->update_value, data->db, query);
 		}
 		else{everything_fine = false;}
