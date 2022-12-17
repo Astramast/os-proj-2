@@ -7,11 +7,15 @@ bool SIGINT_FLAG = false;
 bool SAVE_FLAG = false;
 
 void sigint_handler(int signal_num){
-	SIGINT_FLAG = true;
+	if (signal_num == SIGINT){
+		SIGINT_FLAG = true;
+	}
 }
 
 void sigusr1_handler(int signal_num){
-	SAVE_FLAG = true;
+	if (signal_num == SIGUSR1){
+		SAVE_FLAG = true;
+	}
 }
 
 //initiate all the variables for the mutex

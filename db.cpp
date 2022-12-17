@@ -9,7 +9,7 @@
 void db_save(database_t *db, const char *path) {
     FILE *f = fopen(path, "wb");
 
-    if (fwrite(db->data, sizeof(student_t), db->lsize, f) < 0) {
+	if (fwrite(db->data, sizeof(student_t), db->lsize, f) == 0) {
         perror("Could not write in the DB file");
         exit(1);
     }
