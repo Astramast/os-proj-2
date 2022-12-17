@@ -175,8 +175,6 @@ void client_receiver(int* socket_server, database_t* db, const char* save_path){
 	sigs_a.sa_handler = sigusr1_handler;
 	sigaction(SIGUSR1, &sigs_a, NULL);
 
-	vector<pthread_t*> threads;
-
   while(SIGINT_FLAG == false){
 
     struct sockaddr_in client_adrr;
@@ -203,8 +201,6 @@ void client_receiver(int* socket_server, database_t* db, const char* save_path){
         exit(1);
       }
 
-	    threads.push_back(&client_thread);
-
       sigprocmask(SIG_UNBLOCK, &mask, NULL);
     }
 
@@ -212,15 +208,12 @@ void client_receiver(int* socket_server, database_t* db, const char* save_path){
 		  printf("%s\n", "SIGUSR1 signal received, saving database..."); //printf should not be called in signal handlers, see man 7 signal-safety 
 
     	db_save(db, save_path);
-		  SAVE_FLAG = false;
+		SAVE_FLAG = false;
     }
 
   } 
 	printf("%s\n", "SIGINT signal received, closing server..."); //printf should not be called in signal handlers, see man 7 signal-safety
 	close(*socket_server);
-	for (size_t i=0; i<threads.size(); i++){
-		pthread_join(*threads[i], NULL);
-	}
 }
 
 int server_handler(database_t* db, const char* save_path){
