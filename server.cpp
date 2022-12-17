@@ -185,13 +185,14 @@ void client_receiver(int* socket_server, database_t* db, const char* save_path){
     }
 
     if (SAVE_FLAG == true){
-		printf("%s\n", "SIGUSR1 signal received, saving database...");
+		printf("%s\n", "SIGUSR1 signal received, saving database..."); //printf should not be called in signal handlers, see man 7 signal-safety 
+
     	db_save(db, save_path);
 		SAVE_FLAG = false;
     }
 
   } 
-	printf("%s\n", "SIGINT signal received, closing server..."); //printf should not be called in signal handlers, see 
+	printf("%s\n", "SIGINT signal received, closing server..."); //printf should not be called in signal handlers, see man 7 signal-safety
 
 }
 
