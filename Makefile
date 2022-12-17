@@ -2,14 +2,14 @@
 FLAGS=-std=c++17 -Wall -Wextra -Wpedantic -D_GNU_SOURCE -Werror=all
 COMPILER=g++
 
-all: smalldb client
+all: smalldb sdbsh
 
 smalldb: main.cpp student.o parsing.o db.o query.o utils.o server.o query_handler.o
 	${COMPILER} -o smalldb main.cpp parsing.o student.o db.o query.o utils.o server.o query_handler.o ${FLAGS} -lpthread
 	rm *.o
 
-client: client.cpp client.h	
-	${COMPILER} -o client client.cpp ${FLAGS} -lpthread
+sdbsh: client.cpp client.h	
+	${COMPILER} -o sdbsh client.cpp ${FLAGS} -lpthread
 
 run:
 	make main && ./smalldb
