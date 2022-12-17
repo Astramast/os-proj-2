@@ -44,7 +44,6 @@ int request_reader(int client_socket){
 		printf("%s","\nEnter your query: ");
     }
     close(client_socket);
-    pthread_exit(0);
     return 0;
 }
 

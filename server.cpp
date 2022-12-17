@@ -106,7 +106,7 @@ void* handle_connection(void* data){
     // the process of the mutex is explained in the report
     if(query_number != 1){
 
-	    pthread_mutex_lock(&new_access);
+	  pthread_mutex_lock(&new_access);
       pthread_mutex_lock(&write_access);
       pthread_mutex_unlock(&new_access);
 
@@ -149,10 +149,19 @@ void* handle_connection(void* data){
       data_thread.server_answer = NULL;
 	  }
   }
-
-  close(socket_client);
-  printf("Closing connection with client number: %i\n",socket_client);
-  return NULL;
+	
+	if (lu < 0){
+		printf("Lost connection to client number : %i\n", socket_client);
+		printf("Closing connection : %i\n", socket_client);
+		close(socket_client);
+		printf("Closing thread for connection : %i\n", socket_client);
+		pthread_exit(1);
+	}
+	else{
+		printf("Closing connection and thread of client number: %i [NORMAL]\n",socket_client);
+		close(socket_client);
+		pthread_exit(0);
+	}
 }
 
 void client_receiver(int* socket_server, database_t* db, const char* save_path){
@@ -166,6 +175,8 @@ void client_receiver(int* socket_server, database_t* db, const char* save_path){
 	sigs_a.sa_handler = sigusr1_handler;
 	sigaction(SIGUSR1, &sigs_a, NULL);
 
+	vector<pthread_t*> threads;
+
   while(SIGINT_FLAG == false){
 
     struct sockaddr_in client_adrr;
@@ -178,6 +189,7 @@ void client_receiver(int* socket_server, database_t* db, const char* save_path){
       sigset_t mask;
       sigemptyset(&mask);
       sigaddset(&mask, SIGINT);
+	  sigaddset(&mask, SIGUSR1);
       sigprocmask(SIG_BLOCK, &mask, NULL);
 
       pthread_t client_thread;
@@ -186,7 +198,13 @@ void client_receiver(int* socket_server, database_t* db, const char* save_path){
       client_data->socket_data=client_socket;
       client_data->db=db;
       
-	    pthread_create(&client_thread,NULL,handle_connection,client_data);
+	  if (pthread_create(&client_thread,NULL,handle_connection,client_data) != 0){
+		perror("Thread_create failed\n");
+		exit(1);
+	  }
+
+	  threads.push_back(&client_thread);
+
       sigprocmask(SIG_UNBLOCK, &mask, NULL);
     }
 
@@ -199,6 +217,10 @@ void client_receiver(int* socket_server, database_t* db, const char* save_path){
 
   } 
 	printf("%s\n", "SIGINT signal received, closing server..."); //printf should not be called in signal handlers, see man 7 signal-safety
+	close(*socket_server);
+	for (size_t i=0; i<threads.size(); i++){
+		pthread_join(threads[i], NULL);
+	}
 }
 
 int server_handler(database_t* db, const char* save_path){
@@ -226,7 +248,7 @@ int server_handler(database_t* db, const char* save_path){
     printf("Listening...\n");
     
     client_receiver(&socket_server, db, save_path);
-    close(socket_server);
+
     pthread_mutex_destroy(&new_access);
     pthread_mutex_destroy(&write_access);
     pthread_mutex_destroy(&reader_registration);
