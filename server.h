@@ -12,6 +12,12 @@
 #include <pthread.h>
 #include "query_handler.h"
 
+void sigint_handler(int signal_num);
+
+void sigusr1_handler(int signal_num);
+
+void server_output(query_result_t *query, data_storage* data_thread, int query_number);
+
 void execute_request(char user_query[1024], int query_number, data_storage* data_thread);
 
 void* handle_connection(void* data);

@@ -29,7 +29,7 @@ struct data_storage{
 	struct tm birthdate;
 	unsigned id;
 	char query_parsing[256]="";
-	char error_msg[64]="";
+	char error_msg[128]="";
 	char* server_answer = NULL;
 	database_t* db;
 	int socket_data;

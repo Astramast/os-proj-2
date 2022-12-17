@@ -1,6 +1,6 @@
 #include "server.h"
 
-int MAX_USERS = 20;
+int MAX_USERS = 30;
 int SERVER_PORT = 28772;
 
 bool SIGINT_FLAG = false;
@@ -79,7 +79,6 @@ void execute_request(char user_query[1024],int query_number, data_storage* data_
   struct timespec now;
   clock_gettime(CLOCK_REALTIME, &now);
   query.end_ns = now.tv_nsec + 1e9 * now.tv_sec;
-  printf("%s\n", "ca bug plus");
   
   server_output(&query, data_thread, query_number);
   log_query(&query);
@@ -162,32 +161,33 @@ void client_receiver(int* socket_server, database_t* db){
     size_t addrlen = sizeof(client_adrr);
     client_socket = accept(*socket_server, (struct sockaddr *)&client_adrr, (socklen_t *)&addrlen);
 	
-	if (client_socket > 0){
-    printf("Accepted connection: %d\n", client_socket);  
+    if (client_socket > 0){
+      printf("Accepted connection: %d\n", client_socket);  
 
-	sigset_t mask;
-	sigemptyset(&mask);
-	sigaddset(&mask, SIGINT);
-	sigprocmask(SIG_BLOCK, &mask, NULL);
+      sigset_t mask;
+      sigemptyset(&mask);
+      sigaddset(&mask, SIGINT);
+      sigprocmask(SIG_BLOCK, &mask, NULL);
 
+      pthread_t client_thread;
+      data_storage* client_data=(data_storage*)malloc(sizeof(data_storage));
 
-    pthread_t client_thread;
-    data_storage* client_data=(data_storage*)malloc(sizeof(data_storage));
+      client_data->socket_data=client_socket;
+      client_data->db=db;
+    /*    
+      les mutex init donnent des seg fault
+      pthread_mutex_init(client_data->new_query, NULL);
+      pthread_mutex_init(client_data->write_access, NULL);
+      pthread_mutex_init(client_data->reader_access, NULL);
+    */	
+      pthread_create(&client_thread,NULL,handle_connection,client_data);
+      sigprocmask(SIG_UNBLOCK, &mask, NULL);
+    }
 
-    client_data->socket_data=client_socket;
-    client_data->db=db;
-/*    
-	//les mutex init donnent des seg fault
-    pthread_mutex_init(client_data->new_query, NULL);
-    pthread_mutex_init(client_data->write_access, NULL);
-    pthread_mutex_init(client_data->reader_access, NULL);
-*/	
-    pthread_create(&client_thread,NULL,handle_connection,client_data);
-	sigprocmask(SIG_UNBLOCK, &mask, NULL);
-	}
-	if (SAVE_FLAG == true){
-	//TODO sauver la database
-	}
+    if (SAVE_FLAG == true){
+    //TODO sauver la database
+    }
+
   }  
 
 }
@@ -195,14 +195,15 @@ void client_receiver(int* socket_server, database_t* db){
 int server_handler(database_t* db){
     int socket_server= socket(AF_INET, SOCK_STREAM, 0);
 
-    int opt = 1;
-    setsockopt(socket_server, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt));
 
     struct sockaddr_in address;
 
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = INADDR_ANY;
     address.sin_port = htons(SERVER_PORT); 
+
+    int opt = 1;
+    setsockopt(socket_server, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt));
 
     int check_bind = ::bind(socket_server, (struct sockaddr *)&address, sizeof(address));
 

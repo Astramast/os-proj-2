@@ -26,7 +26,7 @@ bool is_valid_insert(student_t* student, data_storage* data){
 	size_t index = 0;
 
 	while (is_valid == true and index < strlen(student->fname)){
-		if(!isdigit(student->fname[index])){
+		if(isdigit(student->fname[index]) == true){
 			is_valid = false;
 		}
 		index++;
@@ -34,7 +34,7 @@ bool is_valid_insert(student_t* student, data_storage* data){
 
 	index=0;
 	while (is_valid == true and index < strlen(student->lname)){
-		if(!isdigit(student->lname[index])){
+		if(isdigit(student->lname[index]) == true){
 			is_valid = false;
 		}
 		index++;
@@ -42,7 +42,7 @@ bool is_valid_insert(student_t* student, data_storage* data){
 
 	index=0;
 	while (is_valid == true and index < strlen(student->section)){
-		if(!isdigit(student->section[index])){
+		if(isdigit(student->section[index]) == true){
 			is_valid = false;
 		}
 		index++;
@@ -56,17 +56,17 @@ bool is_valid_selectors(data_storage* data){
 	bool is_valid = true;
 	size_t index = 0;
 
-	int strcmp_id=strcmp(data->field, "id");
-	int strcmp_fname=strcmp(data->field, "fname");
-	int strcmp_lname=strcmp(data->field, "lname");
-	int strcmp_section=strcmp(data->field, "section");
+	int strcmp_id = strcmp(data->field, "id");
+	int strcmp_fname = strcmp(data->field, "fname");
+	int strcmp_lname = strcmp(data->field, "lname");
+	int strcmp_section = strcmp(data->field, "section");
 
 	if(strcmp_id == 0){
-
 		while(is_valid == true and index < strlen(data->value)){
 			if(isalpha(data->value[index]) == true){
+				printf("%i\n",isalpha(data->value[index]));
 				is_valid = false;
-				strcpy(data->error_msg, "Error only numbers are allowed for id\n");
+				strcpy(data->error_msg, "Error: only numbers are allowed for id\n");
 			}
 			index++;
 		}
@@ -75,7 +75,8 @@ bool is_valid_selectors(data_storage* data){
 	else if(strcmp_fname == 0 or strcmp_lname == 0 or strcmp_section == 0){
 
 		while(is_valid == true and index < strlen(data->value)){
-			if(isdigit(data->value[index] == true)){
+			
+			if(isdigit(data->value[index]) == true){
 				is_valid = false;
 				strcpy(data->error_msg, "Error: numbers are not allowed for fname, lname and section\n");
 			}
@@ -107,10 +108,10 @@ bool is_valid_update(data_storage* data){
 	if(is_valid_selectors(data)){
 
 		size_t index=0;
-		int strcmp_id=strcmp(data->field_to_update, "id");
-		int strcmp_fname=strcmp(data->field_to_update, "fname");
-		int strcmp_lname=strcmp(data->field_to_update, "lname");
-		int strcmp_section=strcmp(data->field_to_update, "section");
+		int strcmp_id = strcmp(data->field_to_update, "id");
+		int strcmp_fname = strcmp(data->field_to_update, "fname");
+		int strcmp_lname = strcmp(data->field_to_update, "lname");
+		int strcmp_section = strcmp(data->field_to_update, "section");
 
 		if(strcmp_id == 0){
 
@@ -126,7 +127,7 @@ bool is_valid_update(data_storage* data){
 		else if(strcmp_fname == 0 or strcmp_lname == 0 or strcmp_section == 0){
 
 			while(is_valid == true and index < strlen(data->update_value)){
-				if(isdigit(data->update_value[index] == true)){
+				if(isdigit(data->update_value[index]) == true){
 					is_valid = false;
 					strcpy(data->error_msg, "Error: numbers are not allowed for fname, lname and section\n");
 				}
@@ -134,11 +135,11 @@ bool is_valid_update(data_storage* data){
 			}
 		}
 
-		else if(strcmp(data->field, "birthdate") == 0){
+		else if(strcmp(data->field_to_update, "birthdate") == 0){
 
 			char student_bd_temp[256];
 			strcpy(student_bd_temp, data->update_value);
-
+			
 			if (strptime(student_bd_temp, "%d/%m/%Y", &data->birthdate) == NULL) {//transforme un string en date
 				is_valid = false;
 				strcpy(data->error_msg, "Error: birthdate is not complete\n");
@@ -167,9 +168,6 @@ void execute_query(int query_number, data_storage* data, query_result_t* query){
 			strcpy(student.section, data->section);
 			student.birthdate=birthdate;
 
-			printf("query parsing: %s, fname: %s, lname: %s, id: %i, section: %s, birthdate: %i/%i/%i\n",
-			data->query_parsing, student.fname,student.lname,student.id,student.section,
-			student.birthdate.tm_year+1900, student.birthdate.tm_mon+1, student.birthdate.tm_mday);
 			if(is_valid_insert(&student, data))
 				insert(&student, data->db, query);
 		}
@@ -178,7 +176,6 @@ void execute_query(int query_number, data_storage* data, query_result_t* query){
 
 	else if (query_number == SELECT){
 		if (parse_selectors(data->query_parsing, data->field, data->value)){
-			printf("query_parsing: %s, field: %s, value: %s\n",data->query_parsing,data->field, data->value);
 			if(is_valid_selectors(data))
 				select(data->field, data->value, data->db, query);
 		}
@@ -197,8 +194,7 @@ void execute_query(int query_number, data_storage* data, query_result_t* query){
 	else if (query_number == UPDATE){
 
 		if (parse_update(data->query_parsing, data->field, data->value, data->field_to_update, data->update_value)){
-			printf("field: %s, value: %s, field to update: %s, update value: %s\n", 
-			data->field, data->value, data->field_to_update, data->update_value);
+			
 			if(is_valid_update(data))
 				update(data->field, data->value, data->field_to_update, data->update_value, data->db, query);
 		}

@@ -41,7 +41,7 @@ int request_reader(int client_socket){
         printf("Received: %s", answer);
 		free(answer);
 		answer = NULL;
-		printf("%s", "Connected.\nEnter your query: ");
+		printf("%s","\nEnter your query: ");
     }
     close(client_socket);
     pthread_exit(0);
