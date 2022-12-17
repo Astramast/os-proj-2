@@ -60,6 +60,7 @@ bool is_valid_selectors(data_storage* data){
 	int strcmp_fname = strcmp(data->field, "fname");
 	int strcmp_lname = strcmp(data->field, "lname");
 	int strcmp_section = strcmp(data->field, "section");
+
 	if(strcmp_id == 0){
 		while(is_valid == true and index < strlen(data->value)){
 			if(isalpha(data->value[index]) == true){
@@ -148,7 +149,7 @@ bool is_valid_update(data_storage* data){
 			strcpy(data->error_msg,"Error: The data that you want to change doesn't exist.\n");
 			is_valid = false; 
 		}
-		
+
 		return is_valid;	
 	}
 	else{ return false; }
