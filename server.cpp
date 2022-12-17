@@ -191,7 +191,7 @@ void client_receiver(int* socket_server, database_t* db, const char* save_path){
     }
 
   } 
-	printf("%s\n", "SIGINT signal received, closing server...");
+	printf("%s\n", "SIGINT signal received, closing server..."); //printf should not be called in signal handlers, see 
 
 }
 
