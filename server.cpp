@@ -155,13 +155,13 @@ void* handle_connection(void* data){
 		printf("Closing connection : %i\n", socket_client);
 		close(socket_client);
 		printf("Closing thread for connection : %i\n", socket_client);
-		pthread_exit(1);
 	}
 	else{
 		printf("Closing connection and thread of client number: %i [NORMAL]\n",socket_client);
 		close(socket_client);
-		pthread_exit(0);
 	}
+  
+  return NULL;
 }
 
 void client_receiver(int* socket_server, database_t* db, const char* save_path){
@@ -189,7 +189,7 @@ void client_receiver(int* socket_server, database_t* db, const char* save_path){
       sigset_t mask;
       sigemptyset(&mask);
       sigaddset(&mask, SIGINT);
-	  sigaddset(&mask, SIGUSR1);
+	    sigaddset(&mask, SIGUSR1);
       sigprocmask(SIG_BLOCK, &mask, NULL);
 
       pthread_t client_thread;
@@ -198,12 +198,12 @@ void client_receiver(int* socket_server, database_t* db, const char* save_path){
       client_data->socket_data=client_socket;
       client_data->db=db;
       
-	  if (pthread_create(&client_thread,NULL,handle_connection,client_data) != 0){
-		perror("Thread_create failed\n");
-		exit(1);
-	  }
+      if (pthread_create(&client_thread,NULL,handle_connection,client_data) != 0){
+        perror("Thread_create failed\n");
+        exit(1);
+      }
 
-	  threads.push_back(&client_thread);
+	    threads.push_back(&client_thread);
 
       sigprocmask(SIG_UNBLOCK, &mask, NULL);
     }
@@ -219,7 +219,7 @@ void client_receiver(int* socket_server, database_t* db, const char* save_path){
 	printf("%s\n", "SIGINT signal received, closing server..."); //printf should not be called in signal handlers, see man 7 signal-safety
 	close(*socket_server);
 	for (size_t i=0; i<threads.size(); i++){
-		pthread_join(threads[i], NULL);
+		pthread_join(*threads[i], NULL);
 	}
 }
 
