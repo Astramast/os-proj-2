@@ -20,11 +20,11 @@ int request_reader(int client_socket){
         write(client_socket, buffer, length);//send the query to the server
         printf("Sending...\n");
 
-		read(client_socket, &length, sizeof(size_t));//read the server's response
+		read(client_socket, &length, sizeof(size_t));//read the size of the server's response
 		answer = (char*)malloc(length);//allocate the char*
         i = 0;
         while (i < length) {
-            ret = read(client_socket, answer, length - i);
+            ret = read(client_socket, answer, length - i);//read the server's response
             if (ret <= 0) {
                 if (ret < 0){
                     perror("read");
