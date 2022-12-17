@@ -194,7 +194,6 @@ void client_receiver(int* socket_server, database_t* db, const char* save_path){
 
   } 
 	printf("%s\n", "SIGINT signal received, closing server..."); //printf should not be called in signal handlers, see man 7 signal-safety
-
 }
 
 int server_handler(database_t* db, const char* save_path){
@@ -223,5 +222,8 @@ int server_handler(database_t* db, const char* save_path){
     
     client_receiver(&socket_server, db, save_path);
     close(socket_server);
+	pthread_mutex_destroy(&new_access);
+	pthread_mutex_destroy(&write_access);
+	pthread_mutex_destroy(&reader_registration);
     return 0;
 }
