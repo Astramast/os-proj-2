@@ -1,31 +1,27 @@
 #! /bin/bash
 
-USAGE='Usage : ./monitoring [run|status|sync|shutdown|help]'
+USAGE='Usage : ./smalldbctl [list|sync|stop|help]'
 
 function parse_command () {
 	for param ; do
-		if [ $param = '-h' ] || [ $param = '--help' ] || [ $param = 'help' ] ; then
+		if [ $param = '-h' ] || [ $param = '--help' ] || [ $param = 'help' ] || [ $param = '' ] ; then
 			echo "$USAGE" 1>&2
 			exit
 		fi
 	done
-	
+
 	case "$1" in
-		run)
+		list)
 			shift
-			./run.sh $@
-			;;
-		status)
-			shift
-			./status.sh $@
+			./list.sh $@
 			;;
 		sync)
 			shift
 			./sync.sh $@
 			;;
-		shutdown)
+		stop)
 			shift
-			./shutdown.sh $@
+			./stop_server.sh $@
 			;;
 		*)
 			echo "$USAGE" 1>&2

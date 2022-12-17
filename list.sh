@@ -1,6 +1,6 @@
 #! /bin/bash
 
-USAGE='./smalldbctl sync'
+USAGE='./smalldbctl list'
 
 function verify_args () {
 	for param ; do
@@ -11,13 +11,13 @@ function verify_args () {
 	done
 
 	if [ $# -ne 0 ]; then
-		echo "Sync accept no argument. Usage : $USAGE" 1>&2
+		echo "List accept no argument. Usage : $USAGE" 1>&2
 		exit $BAD_USAGE
 	fi
 }
 
 verify_args "$@"
-for SDB_PID in $(pgrep smalldb); do
-	kill -s SIGUSR1 $SDB_PID
+for IP in $(ss --no-header -Ontp4 'sport = :28772' | awk '{print $5}' | cut -d: -f1 -s); do
+	echo $IP
 done
 

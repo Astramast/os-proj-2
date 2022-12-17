@@ -1,6 +1,6 @@
 #! /bin/bash
 
-USAGE='./monitoring status'
+USAGE='./smalldbctl stop'
 
 function verify_args () {
 	for param ; do
@@ -9,13 +9,15 @@ function verify_args () {
 			exit
 		fi
 	done
-	
+
 	if [ $# -ne 0 ]; then
-		echo "Status accept no argument. Usage : $USAGE" 1>&2
+		echo "Stop accept no argument. Usage : $USAGE" 1>&2
 		exit $BAD_USAGE
 	fi
 }
 
 verify_args "$@"
-echo "Found $(ps -e | grep tinydb -c) processes called tinydb."
-echo "$(ps -e | grep tinydb)"
+for SDB_PID in $(pgrep smalldb); do
+	kill -s SIGINT $SDB_PID
+done
+

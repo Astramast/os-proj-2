@@ -8,12 +8,8 @@
 
 void db_save(database_t *db, const char *path) {
     FILE *f = fopen(path, "wb");
-    if (!f) {
-        perror("Could not open the DB file");
-        exit(1);
-    }
 
-    if (fwrite(db->data, sizeof(student_t), db->lsize, f) < 0) {
+	if (fwrite(db->data, sizeof(student_t), db->lsize, f) == 0) {
         perror("Could not write in the DB file");
         exit(1);
     }
@@ -25,14 +21,15 @@ void db_load(database_t *db, const char *path) {
 	printf("Entered db_load\n");
     FILE *file = fopen(path, "rb");
     if (!file) {
-        perror("Could not open the DB file");
-        exit(1);
+        printf("%s\n", "DB file does not exist. New file will be created at saving.");
+        return;
     }
     student_t student;
     while (fread(&student, sizeof(student_t), 1, file)) {
         db_add(db, student);
     }
     fclose(file);
+	printf("%ld students loaded.\n", db->lsize);
 }
 
 void db_init(database_t *db) {

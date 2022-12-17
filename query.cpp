@@ -2,16 +2,9 @@
 #include <time.h>
 #include <iostream>
 #include <stdio.h>
-#include <vector>
 #include <cstring>
-#include "db.h"
 using std::stoul;
-using std::string;
-using std::vector;
-using std::cout;
-using std::endl;
 using std::strcpy;
-using std::invalid_argument;
 
 void insert(student_t* student, database_t *data_base, query_result_t *query){
 	bool flag = true;
@@ -96,7 +89,6 @@ vector<student_t*> select(string field , string value, database_t* data_base, qu
 	}
 	else{
 		query->status=QUERY_FAILURE;
-		printf("The data that you want to select doesn't exist.\n");
 	}
 	return sort_student_list;
 }
@@ -136,7 +128,7 @@ void delete_function(string field,string value , database_t* data_base, query_re
 			}
 
 			else if(field =="birthdate"){
-				char* student_bd_temp=nullptr;
+				char* student_bd_temp = nullptr;
 				tm* student_tm = &data_base->data[i].birthdate;
 				strftime(student_bd_temp, 10, "%d/%m/%Y", student_tm);
 				if(student_bd_temp == value){
@@ -147,14 +139,12 @@ void delete_function(string field,string value , database_t* data_base, query_re
 
 			if (delete_student){
 				db_remove(data_base, i); //Here lsize-- is executed
-				printf("Student deleted with success\n");
 				i--; //Here we do that because the student index, i is replaced by the following student and we need to verify it too.
 			}
 		}
 	}
 	else{
 		query->status=QUERY_FAILURE;
-		printf("The data that you want to delete doesn't exist.\n");
 	}
 }
 
@@ -200,7 +190,6 @@ void update(string filter_field ,string value ,string modified_field ,char* new_
 	}
 	else{
 		query->status=QUERY_FAILURE;
-		printf("The data that you want to change doesn't exist.\n");
 	}
 }
 
