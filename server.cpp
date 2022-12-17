@@ -7,12 +7,10 @@ bool SIGINT_FLAG = false;
 bool SAVE_FLAG = false;
 
 void sigint_handler(int signal_num){
-	printf("%s\n", "SIGINT signal received, closing server...");
 	SIGINT_FLAG = true;
 }
 
 void sigusr1_handler(int signal_num){
-	printf("%s\n", "SIGUSR1 signal received, saving database...");
 	SAVE_FLAG = true;
 }
 
@@ -187,10 +185,13 @@ void client_receiver(int* socket_server, database_t* db, const char* save_path){
     }
 
     if (SAVE_FLAG == true){
+		printf("%s\n", "SIGUSR1 signal received, saving database...");
     	db_save(db, save_path);
+		SAVE_FLAG = false;
     }
 
-  }  
+  } 
+	printf("%s\n", "SIGINT signal received, closing server...");
 
 }
 
