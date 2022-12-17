@@ -27,11 +27,11 @@ void* handle_connection(void* data);
  * @param data: data storage structure sended into the thread
  */
 
-void client_receiver(int* socket_server,database_t* db);
+void client_receiver(int* socket_server,database_t* db, const char* save_path);
 /**
  * @brief: create a new thread for each new client
  */
-int server_handler(database_t* db);
+int server_handler(database_t* db, const char* save_path);
 /**
  * @brief: create the server socket
  */

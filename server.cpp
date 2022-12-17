@@ -13,7 +13,7 @@ void sigint_handler(int signal_num){
 
 void sigusr1_handler(int signal_num){
 	printf("%s\n", "SIGUSR1 signal received, saving database...");
-	SIGINT_FLAG = true;
+	SAVE_FLAG = true;
 }
 
 void server_output(query_result_t *query, data_storage* data_thread, int query_number){
@@ -146,7 +146,7 @@ void* handle_connection(void* data){
   return NULL;
 }
 
-void client_receiver(int* socket_server, database_t* db){
+void client_receiver(int* socket_server, database_t* db, const char* save_path){
 
 	int client_socket = 0;
 	struct sigaction sigint_a;
@@ -154,6 +154,8 @@ void client_receiver(int* socket_server, database_t* db){
 	sigemptyset(&sigint_a.sa_mask);
 	sigint_a.sa_flags = 0;
 	sigaction(SIGINT, &sigint_a, NULL);
+	sigint_a.sa_handler = sigusr1_handler;
+	sigaction(SIGUSR1, &sigint_a, NULL);
 
   while(SIGINT_FLAG == false){
 
@@ -185,14 +187,14 @@ void client_receiver(int* socket_server, database_t* db){
     }
 
     if (SAVE_FLAG == true){
-    //TODO sauver la database
+    	db_save(db, save_path);
     }
 
   }  
 
 }
 
-int server_handler(database_t* db){
+int server_handler(database_t* db, const char* save_path){
     int socket_server= socket(AF_INET, SOCK_STREAM, 0);
 
 
@@ -216,7 +218,7 @@ int server_handler(database_t* db){
     listen(socket_server, MAX_USERS); 
     printf("Listening...\n");
     
-    client_receiver(&socket_server, db);
+    client_receiver(&socket_server, db, save_path);
     close(socket_server);
     return 0;
 }

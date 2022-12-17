@@ -18,7 +18,7 @@ int main(int argc, char const *argv[]){
     db_init(&db);
     db_load(&db, db_path);
     
-    server_handler(&db);
+    server_handler(&db, db_path);
 
     db_save(&db, db_path);
 	printf("Bye bye!\n");
