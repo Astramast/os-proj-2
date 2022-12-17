@@ -23,7 +23,7 @@ int identify_query(char* query){
 bool is_valid_insert(student_t* student, data_storage* data){
 
 	bool is_valid = true;
-	int index = 0;
+	size_t index = 0;
 
 	while (is_valid == true and index < strlen(student->fname)){
 		if(!isdigit(student->fname[index])){
@@ -54,7 +54,7 @@ bool is_valid_insert(student_t* student, data_storage* data){
 
 bool is_valid_selectors(data_storage* data){
 	bool is_valid = true;
-	int index = 0;
+	size_t index = 0;
 
 	int strcmp_id=strcmp(data->field, "id");
 	int strcmp_fname=strcmp(data->field, "fname");
@@ -106,7 +106,7 @@ bool is_valid_update(data_storage* data){
 	bool is_valid = true;
 	if(is_valid_selectors(data)){
 
-		int index=0;
+		size_t index=0;
 		int strcmp_id=strcmp(data->field_to_update, "id");
 		int strcmp_fname=strcmp(data->field_to_update, "fname");
 		int strcmp_lname=strcmp(data->field_to_update, "lname");

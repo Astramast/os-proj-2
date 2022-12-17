@@ -3,6 +3,19 @@
 int MAX_USERS = 20;
 int SERVER_PORT = 28772;
 
+bool SIGINT_FLAG = false;
+bool SAVE_FLAG = false;
+
+void sigint_handler(int signal_num){
+	printf("%s\n", "SIGINT signal received, closing server...");
+	SIGINT_FLAG = true;
+}
+
+void sigusr1_handler(int signal_num){
+	printf("%s\n", "SIGUSR1 signal received, saving database...");
+	SIGINT_FLAG = true;
+}
+
 void server_output(query_result_t *query, data_storage* data_thread, int query_number){
 	if (strlen(data_thread->error_msg) != 0){
     
@@ -136,13 +149,27 @@ void* handle_connection(void* data){
 
 void client_receiver(int* socket_server, database_t* db){
 
-  while(true){
+	int client_socket = 0;
+	struct sigaction sigint_a;
+	sigint_a.sa_handler = sigint_handler;
+	sigemptyset(&sigint_a.sa_mask);
+	sigint_a.sa_flags = 0;
+	sigaction(SIGINT, &sigint_a, NULL);
+
+  while(SIGINT_FLAG == false){
 
     struct sockaddr_in client_adrr;
     size_t addrlen = sizeof(client_adrr);
-    int client_socket = accept(*socket_server, (struct sockaddr *)&client_adrr, (socklen_t *)&addrlen);
-
+    client_socket = accept(*socket_server, (struct sockaddr *)&client_adrr, (socklen_t *)&addrlen);
+	
+	if (client_socket > 0){
     printf("Accepted connection: %d\n", client_socket);  
+
+	sigset_t mask;
+	sigemptyset(&mask);
+	sigaddset(&mask, SIGINT);
+	sigprocmask(SIG_BLOCK, &mask, NULL);
+
 
     pthread_t client_thread;
     data_storage* client_data=(data_storage*)malloc(sizeof(data_storage));
@@ -156,6 +183,11 @@ void client_receiver(int* socket_server, database_t* db){
     pthread_mutex_init(client_data->reader_access, NULL);
 */	
     pthread_create(&client_thread,NULL,handle_connection,client_data);
+	sigprocmask(SIG_UNBLOCK, &mask, NULL);
+	}
+	if (SAVE_FLAG == true){
+	//TODO sauver la database
+	}
   }  
 
 }

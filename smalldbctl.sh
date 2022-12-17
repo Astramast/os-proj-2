@@ -4,7 +4,7 @@ USAGE='Usage : ./smalldbctl [list|sync|stop|help]'
 
 function parse_command () {
 	for param ; do
-		if [ $param = '-h' ] || [ $param = '--help' ] || [ $param = 'help' ] ; then
+		if [ $param = '-h' ] || [ $param = '--help' ] || [ $param = 'help' ] || [ $param = '' ] ; then
 			echo "$USAGE" 1>&2
 			exit
 		fi
@@ -18,11 +18,13 @@ function parse_command () {
 		sync)
 			shift
 			./sync.sh $@
+			;;
 		stop)
 			shift
-			./stop.sh $@
+			./stop_server.sh $@
+			;;
 		*)
-			echo "$USAGE" 1&>2
+			echo "$USAGE" 1>&2
 			exit $BAD_USAGE
 			;;
 	esac
