@@ -67,7 +67,7 @@ void server_output(query_result_t *query, data_storage* data_thread, int query_n
 		data_thread->server_answer = (char*)malloc(sizeof(char)*32);
 
 		char amount_str[32];
-		snprintf(amount_str, 32,"%li student(s) updated", query->lsize);
+		snprintf(amount_str, 32,"%li student(s) updated", query->lsize-1);
 		strcat(data_thread->server_answer, amount_str);
 	}
 }
