@@ -160,7 +160,7 @@ void* handle_connection(void* data){
 		printf("Closing connection and thread of client number: %i [NORMAL]\n",socket_client);
 		close(socket_client);
 	}
-  
+
   return NULL;
 }
 
@@ -208,17 +208,17 @@ void client_receiver(int* socket_server, database_t* db, const char* save_path){
 		  printf("%s\n", "SIGUSR1 signal received, saving database..."); //printf should not be called in signal handlers, see man 7 signal-safety 
 
     	db_save(db, save_path);
-		SAVE_FLAG = false;
+		  SAVE_FLAG = false;
     }
 
   } 
 	printf("%s\n", "SIGINT signal received, closing server..."); //printf should not be called in signal handlers, see man 7 signal-safety
 	close(*socket_server);
+
 }
 
 int server_handler(database_t* db, const char* save_path){
     int socket_server= socket(AF_INET, SOCK_STREAM, 0);
-
 
     struct sockaddr_in address;
 
