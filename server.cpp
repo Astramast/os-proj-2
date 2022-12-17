@@ -49,7 +49,7 @@ void server_output(query_result_t *query, data_storage* data_thread, int query_n
 
 	else if (query_number == INSERT){
 		data_thread->server_answer = (char*)malloc(sizeof(char)*(sizeof(student_t)+100));
-    //send the student inserted to the client
+    //prepare the student inserted that will be send to the client
 		char student_str_temp[sizeof(student_t)+100];
 		student_to_str(student_str_temp, &query->students[0]);
 		strcat(data_thread->server_answer, student_str_temp);
@@ -103,7 +103,7 @@ void* handle_connection(void* data){
 
 	printf("Request readed from client number %i: %s", socket_client, user_query);
     int query_number = identify_query(user_query);
-
+    // the process of the mutex is explained in the report
     if(query_number != 1){
 
 	    pthread_mutex_lock(&new_access);
@@ -144,7 +144,7 @@ void* handle_connection(void* data){
     write(socket_client, &serv_answer_len, sizeof(size_t));
     write(socket_client, data_thread.server_answer, serv_answer_len);
 
-    if (data_thread.server_answer){
+    if (data_thread.server_answer){// if the answer has been sent, initiate it at NULL
       free(data_thread.server_answer);
       data_thread.server_answer = NULL;
 	  }
@@ -186,7 +186,7 @@ void client_receiver(int* socket_server, database_t* db, const char* save_path){
       client_data->socket_data=client_socket;
       client_data->db=db;
       
-	  pthread_create(&client_thread,NULL,handle_connection,client_data);
+	    pthread_create(&client_thread,NULL,handle_connection,client_data);
       sigprocmask(SIG_UNBLOCK, &mask, NULL);
     }
 

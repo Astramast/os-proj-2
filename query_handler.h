@@ -80,7 +80,7 @@ int identify_query(char* query);
 
 void execute_query(int query_number, data_storage* data, query_result_t* query);
 /**
- * @brief: parse and execute the query
+ * @brief: parse, check the syntax of the query and execute it.
  * @param data: a pointer to the data storage where every parameter needed for the parsing and the execution is
  */
 
