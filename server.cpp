@@ -14,6 +14,11 @@ void sigusr1_handler(int signal_num){
 	SAVE_FLAG = true;
 }
 
+pthread_mutex_t new_access = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t write_access = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t reader_registration = PTHREAD_MUTEX_INITIALIZER;
+int readers = 0;
+
 void server_output(query_result_t *query, data_storage* data_thread, int query_number){
 	if (strlen(data_thread->error_msg) != 0){
     
@@ -84,7 +89,7 @@ void execute_request(char user_query[1024],int query_number, data_storage* data_
 
 void* handle_connection(void* data){
   char user_query[256];
-  int lu, readers_number = 0;
+  int lu = 0;
   data_storage data_thread= *(data_storage*)data;
   free(data);
   int socket_client = data_thread.socket_data;
@@ -95,38 +100,39 @@ void* handle_connection(void* data){
     int query_number = identify_query(user_query);
 
     if(query_number != 1){
-/*
-	  pthread_mutex_lock(data_thread.new_query);
-      pthread_mutex_lock(data_thread.write_access);
-      pthread_mutex_unlock(data_thread.new_query);
-*/
+
+	  pthread_mutex_lock(&new_access);
+      pthread_mutex_lock(&write_access);
+      pthread_mutex_unlock(&new_access);
+
       execute_request(user_query, query_number, &data_thread);
 
-      //pthread_mutex_unlock(data_thread.write_access);
+      pthread_mutex_unlock(&write_access);
     }
 
     else{
       
-      //pthread_mutex_lock(data_thread.new_query);
-      //pthread_mutex_lock(data_thread.reader_access);
+      pthread_mutex_lock(&new_access);
+      pthread_mutex_lock(&reader_registration);
 
-      if(readers_number == 0){
-        //pthread_mutex_lock(data_thread.write_access);
+      if(readers == 0){
+        pthread_mutex_lock(&write_access);
       }
-      readers_number++;
+      readers++;
 
-      //pthread_mutex_unlock(data_thread.new_query);
-      //pthread_mutex_unlock(data_thread.reader_access);
+      pthread_mutex_unlock(&new_access);
+      pthread_mutex_unlock(&reader_registration);
+
       execute_request(user_query, query_number, &data_thread);
-	    printf("%s\n", "executed request");
-      //pthread_mutex_lock(data_thread.reader_access);
-      readers_number--;
 
-      if (readers_number == 0){
-        //pthread_mutex_unlock(data_thread.write_access);
+      pthread_mutex_lock(&reader_registration);
+      readers--;
+
+      if (readers == 0){
+        pthread_mutex_unlock(&write_access);
       }
 
-      //pthread_mutex_unlock(data_thread.reader_access);
+      pthread_mutex_unlock(&reader_registration);
     }
     
     size_t serv_answer_len = strlen(data_thread.server_answer)+1; // +1 for \0 char
@@ -174,13 +180,8 @@ void client_receiver(int* socket_server, database_t* db, const char* save_path){
 
       client_data->socket_data=client_socket;
       client_data->db=db;
-    /*    
-      les mutex init donnent des seg fault
-      pthread_mutex_init(client_data->new_query, NULL);
-      pthread_mutex_init(client_data->write_access, NULL);
-      pthread_mutex_init(client_data->reader_access, NULL);
-    */	
-      pthread_create(&client_thread,NULL,handle_connection,client_data);
+      
+	  pthread_create(&client_thread,NULL,handle_connection,client_data);
       sigprocmask(SIG_UNBLOCK, &mask, NULL);
     }
 

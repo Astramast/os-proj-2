@@ -33,7 +33,6 @@ struct data_storage{
 	char* server_answer = NULL;
 	database_t* db;
 	int socket_data;
-	pthread_mutex_t* new_query, *write_access, *reader_access;
 };
 
 bool is_valid_insert(student_t* student, data_storage* data);
